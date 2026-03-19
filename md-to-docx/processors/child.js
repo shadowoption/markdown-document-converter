@@ -1,5 +1,3 @@
-const docx = require("docx");
-
 function processChild(token) {
   this.pushStyle();
   switch (token.type) {

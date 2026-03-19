@@ -1,6 +1,19 @@
 const docx = require("docx");
 const he = require("he");
 
+function normalizeText(value) {
+  if(value === null || value === undefined) {
+    return "";
+  }
+  if(typeof value === "string") {
+    return value;
+  }
+  if(typeof value === "object" && typeof value.text === "string") {
+    return value.text;
+  }
+  return String(value);
+}
+
 function mapAlign(align) {
   switch (align) {
     case "left":
@@ -20,7 +33,7 @@ function makeCell(self, text, align, isHeader) {
       new docx.Paragraph({
         children: [
           new docx.TextRun({
-            text: he.decode(text) || "",
+            text: he.decode(normalizeText(text)) || "",
             bold: isHeader,
             size: self.style.fontSize,
             font: self.style.font,
@@ -41,7 +54,7 @@ function processTable(token) {
   for (let i = 0; i < token.header.length; i++) {
     const h = token.header[i];
     headers.push(
-      makeCell(this, h.text, mapAlign(token.align[i]), true),
+      makeCell(this, h, mapAlign(token.align[i]), true),
     );
   }
 
@@ -57,7 +70,7 @@ function processTable(token) {
     for (let i = 0; i < token.header.length; i++) {
       const cell = r[i] || { text: "" };
       currentRow.push(
-        makeCell(this, cell.text, mapAlign(token.align[i]), false),
+        makeCell(this, cell, mapAlign(token.align[i]), false),
       );
     }
     rows.push(

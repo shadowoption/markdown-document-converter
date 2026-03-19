@@ -53,9 +53,17 @@ class MarkdownToDocx {
 
     // apply initial style (computes indentSize)
     this.updateStyle(style);
+    // copy initial style to reset state between calls to convert
+    this.initialStyle = { ...this.style };
   }
 
   convert(text) {
+    this.paragraphs = [];
+    this.current = [];
+    this.styleStack = [];
+    if(this.initialStyle) {
+      this.style = { ...this.initialStyle };
+    }
     const tokens = marked.lexer(text, { gfm: true, breaks: true });
 
     // decode HTML text & split code lines

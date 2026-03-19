@@ -1,5 +1,3 @@
-const docx = require("docx");
-
 function writeBlockquote(token) {
   this.groupParagraph();
   this.updateStyle({
