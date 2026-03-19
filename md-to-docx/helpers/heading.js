@@ -1,5 +1,4 @@
 const { HEADING_MAP } = require("../helpers/styles");
-const docx = require("docx");
 
 function writeHeading(token) {
   this.groupParagraph();
