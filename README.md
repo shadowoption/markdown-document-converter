@@ -1,10 +1,21 @@
-# Markdown to DOCX Converter
+# Hunchly Markdown Converter
 
-A library for converting Markdown text to Microsoft Word (.docx) documents using the `docx` library. The converter processes Markdown tokens and transforms them into formatted Word document paragraphs, tables, and styled text.
+A JavaScript library for converting Markdown text into multiple output formats. The initial focus is **Markdown → DOCX**, with a shared architecture designed to support additional renderers such as **Markdown → PDF**.
 
-> **Note:** This is a newly developed library. While the core functionality is implemented, real-world usage may reveal edge cases or areas for improvement. Feedback and bug reports are welcome.
+The library exposes a **single, stable root-level API** while keeping format-specific logic modular and well-tested.
+
+> **Note:** This is an actively developed library. While the core functionality is production-ready, real‑world usage may reveal additional edge cases. Feedback and bug reports are welcome.
+
 
 ## Overview
+
+`hunchly-markdown-converter` provides a complete Markdown processing pipeline that tokenizes input once and renders it into one or more output formats.
+
+Currently supported:
+
+- ✅ Markdown → DOCX
+- ⏳ Markdown → PDF (planned / in progress)
+
 
 This module provides a complete pipeline for converting Markdown to DOCX format with support for:
 - Headings (H1-H6)
@@ -45,20 +56,7 @@ md-to-docx/
 │
 └── tests/                       # Jest test suite (292 tests)
     ├── unit_tests/              # Jest tests for helper functions (196 tests)
-    │   ├── blockquote.test.js
-    │   ├── code.test.js
-    │   ├── heading.test.js
-    │   ├── lines.test.js
-    │   ├── link.test.js
-    │   ├── list.test.js
-    │   ├── paragraph.test.js
-    │   ├── styles.test.js
-    │   ├── table.test.js
-    │   └── text.test.js
     ├── processors/              # Jest tests for processors (51 tests)
-    │   ├── dfs.test.js
-    │   ├── parent.test.js
-    │   └── child.test.js
     ├── MarkdownToDocx.test.js    # Jest tests for main class (25 tests)
     └── index.test.js            # Jest tests for factory function (20 tests)
 ```
@@ -111,14 +109,13 @@ DOCX Paragraph[] / Table[]
 The library uses a factory pattern. Invoke it immediately when requiring and call `convert()` on the returned instance:
 
 ```javascript
-const mddocx = require('./markdown/md-to-docx')();
-const paragraphs = mddocx.convert(text);
+const { mdToDocx } = require("hunchly-markdown-converter");
 ```
 
 **Full Example:**
 
 ```javascript
-const mddocx = require('./markdown/md-to-docx')();
+const { mdToDocx } = require("hunchly-markdown-converter");
 
 const markdown = `
 # Hello World
@@ -133,8 +130,8 @@ const x = 5;
 \`\`\`
 `;
 
-const paragraphs = mddocx.convert(markdown);
-// Returns array of docx.Paragraph and docx.Table objects
+const paragraphs = mdToDocx.convert(markdown);
+// Returns an array of docx.Paragraph and docx.Table objects
 ```
 
 ### Custom Styling
@@ -142,7 +139,7 @@ const paragraphs = mddocx.convert(markdown);
 Pass a style object as the second parameter to `convert()`:
 
 ```javascript
-const mddocx = require('./markdown/md-to-docx')();
+const { mdToDocx } = require("hunchly-markdown-converter");
 
 const customStyle = {
   font: "Times New Roman",
@@ -150,16 +147,16 @@ const customStyle = {
   textColor: "000000"
 };
 
-const paragraphs = mddocx.convert(markdown, customStyle);
+const paragraphs = mdToDocx.convert(markdown, customStyle);
 ```
 
 ### Integration with docx library
 
 ```javascript
 const { Document, Packer } = require('docx');
-const mddocx = require('./markdown/md-to-docx')();
+const { mdToDocx } = require("hunchly-markdown-converter");
 
-const paragraphs = mddocx.convert(markdownText);
+const paragraphs = mdToDocx.convert(markdownText);
 
 const doc = new Document({ sections: [{ children: paragraphs }] });
 const filepath = 'output.docx';
@@ -215,8 +212,9 @@ As a newly developed library, the following areas may need refinement through re
 ### Running Jest Tests
 
 ```bash
-# All tests
-npx jest api/markdown/md-to-docx/tests/
+# All md-to-docx tests
+cd md-to-docx
+npm run test
 ```
 
 ## Dependencies
