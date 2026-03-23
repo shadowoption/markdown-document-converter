@@ -1,25 +1,22 @@
 const docx = require("docx");
 
-function getOptions(text, style) {
+function writeText(text) {
   const options = {
     text,
-    font: style.font,
-    bold: style.bold,
+    font: this.style.font,
+    bold: this.style.bold,
   };
-  if (!style.headingLevel) {
-    options.size = style.fontSize;
-    options.color = style.textColor;
-    options.italics = style.italics;
-    options.strike = style.strike;
+  if (!this.style.headingLevel) {
+    options.size = this.style.fontSize;
+    options.color = this.style.textColor;
+    options.italics = this.style.italics;
+    options.strike = this.style.strike;
   }
-  if (style.link) {
+  if (this.style.link) {
     options.style = "Hyperlink";
   }
-  return options;
-}
 
-function writeText(text) {
-  this.current.push(new docx.TextRun(getOptions(text, this.style)));
+  this.current.push(new docx.TextRun(options));
 }
 
 module.exports = { writeText };

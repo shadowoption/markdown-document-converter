@@ -7,6 +7,7 @@ function writeCheckBox(token) {
 
 function writeList(token) {
   this.groupParagraph();
+  // add bullet point prefix and increase indent level
   this.updateStyle({
     prefix: "\u2022 ",
     indentLevel: this.style.indentLevel + 1,
@@ -14,6 +15,7 @@ function writeList(token) {
   });
   for (let i = 0; i < token.items.length; i++) {
     const item = token.items[i];
+    // if ordered, replace bullet point with current index for numbering
     if (token.ordered) {
       this.updateStyle({ prefix: `${token.start + i}. ` });
     }

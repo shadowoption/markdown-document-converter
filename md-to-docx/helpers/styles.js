@@ -31,17 +31,20 @@ const HEADING_MAP = [
   docx.HeadingLevel.HEADING_6,
 ];
 
+// push the current style onto the stack
 function pushStyle() {
   this.styleStack = this.styleStack || [];
   this.styleStack.push({ ...this.style });
 }
 
+// pop the last style from the stack and set it as the current style
 function popStyle() {
   if (this.styleStack && this.styleStack.length > 0) {
     this.style = this.styleStack.pop();
   }
 }
 
+// update the current style with the given partial style
 function updateStyle(partial = {}) {
   this.style = {
     ...this.style,
@@ -50,6 +53,7 @@ function updateStyle(partial = {}) {
   this.style.indentSize = this.style.fontSize * 10;
 }
 
+// set text style based on the given type (e.g., "strong", "em", "del")
 function setTextStyle(type) {
   switch (type) {
     case "strong":

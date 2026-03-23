@@ -104,15 +104,7 @@ DOCX Paragraph[] / Table[]
 
 ## Usage
 
-### Initialization and Basic Usage
-
-The library uses a factory pattern. Invoke it immediately when requiring and call `convert()` on the returned instance:
-
-```javascript
-const { mdToDocx } = require("hunchly-markdown-converter");
-```
-
-**Full Example:**
+Pass a style object as the second parameter to `convert()`:
 
 ```javascript
 const { mdToDocx } = require("hunchly-markdown-converter");
@@ -129,17 +121,6 @@ This is **bold** and *italic* text.
 const x = 5;
 \`\`\`
 `;
-
-const paragraphs = mdToDocx.convert(markdown);
-// Returns an array of docx.Paragraph and docx.Table objects
-```
-
-### Custom Styling
-
-Pass a style object as the second parameter to `convert()`:
-
-```javascript
-const { mdToDocx } = require("hunchly-markdown-converter");
 
 const customStyle = {
   font: "Times New Roman",

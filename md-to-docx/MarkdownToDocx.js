@@ -20,10 +20,15 @@ const { DFS } = require("./processors/dfs");
 
 
 class MarkdownToDocx {
+  // style parameter is optional, overrides default style (see DEFAULT_STYLE)
   constructor(style = {}) {
+    // list of paragraphs to be returned at the end
     this.paragraphs = [];
+    // current paragraph being processed (array of text runs)
     this.current = [];
+    // current style (initially default, updated as we traverse the tree)
     this.style = { ...DEFAULT_STYLE };
+    // stack to keep track of styles as we traverse the tree (push on entry, pop on exit)
     this.styleStack = [];
 
     // bind helpers to instance (keeps bodies unchanged)
@@ -31,7 +36,6 @@ class MarkdownToDocx {
     this.popStyle = popStyle.bind(this);
     this.updateStyle = updateStyle.bind(this);
     this.setTextStyle = setTextStyle.bind(this);
-
     this.writeText = writeText.bind(this);
     this.breakLine = breakLine.bind(this);
     this.groupParagraph = groupParagraph.bind(this);
@@ -56,16 +60,20 @@ class MarkdownToDocx {
   }
 
   convert(text) {
+    // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
     const tokens = marked.lexer(text, { gfm: true, breaks: true });
 
-    // decode HTML text & split code lines
+    // decode HTML text and split code lines
     marked.walkTokens(tokens, (token) => {
       if (token.text) token.text = he.decode(token.text);
       if (token.type === "code") token.lines = token.text.split("\n");
     });
 
+    // traverse the token tree and build paragraphs
     this.DFS(tokens);
+    // group any trailing text runs into a paragraph
     this.groupParagraph();
+    // return the list of paragraphs
     return this.paragraphs;
   }
 }
