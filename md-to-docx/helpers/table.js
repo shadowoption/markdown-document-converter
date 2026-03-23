@@ -1,6 +1,7 @@
 const docx = require("docx");
 const he = require("he");
 
+// normalize text to prevent issues with non-string values and to extract text from objects if needed
 function normalizeText(value) {
   if(value === null || value === undefined) {
     return "";
@@ -14,6 +15,7 @@ function normalizeText(value) {
   return String(value);
 }
 
+// map markdown alignment to docx alignment
 function mapAlign(align) {
   switch (align) {
     case "left":
@@ -27,6 +29,7 @@ function mapAlign(align) {
   }
 }
 
+// create a table cell with the given text, alignment, and header status
 function makeCell(self, text, align, isHeader) {
   return new docx.TableCell({
     children: [
@@ -47,17 +50,18 @@ function makeCell(self, text, align, isHeader) {
   });
 }
 
+// process a markdown table token and convert it to a docx table
 function processTable(token) {
   const rows = [];
   const headers = [];
 
+  // write table headers
   for (let i = 0; i < token.header.length; i++) {
     const h = token.header[i];
     headers.push(
       makeCell(this, h, mapAlign(token.align[i]), true),
     );
   }
-
   rows.push(
     new docx.TableRow({
       children: headers,
@@ -65,6 +69,7 @@ function processTable(token) {
     }),
   );
 
+  // write table rows
   for (const r of token.rows) {
     const currentRow = [];
     for (let i = 0; i < token.header.length; i++) {
@@ -80,6 +85,7 @@ function processTable(token) {
     );
   }
 
+  // create the table with the generated rows
   const table = new docx.Table({
     rows,
     width: { size: 100, type: docx.WidthType.PERCENTAGE },
