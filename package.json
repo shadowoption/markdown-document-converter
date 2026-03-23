@@ -1,0 +1,7 @@
+{
+  "name": "hunchly-markdown-converter",
+  "private": true,
+  "workspaces": [
+    "md-to-docx"
+  ]
+}
