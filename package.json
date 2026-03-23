@@ -1,7 +1,6 @@
 {
   "name": "hunchly-markdown-converter",
-  "private": true,
-  "workspaces": [
-    "md-to-docx"
-  ]
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT"
 }
