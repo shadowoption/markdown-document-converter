@@ -1,4 +1,4 @@
-const docx = require("docx");
+const docx = require("./docx");
 
 function groupParagraph() {
   if (this.current.length === 0) return;

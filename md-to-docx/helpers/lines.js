@@ -1,4 +1,4 @@
-const docx = require("docx");
+const docx = require("./docx");
 
 function horizontalLine() {
   const options = {

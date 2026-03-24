@@ -1,4 +1,4 @@
-const docx = require("docx");
+const docx = require("./docx");
 const he = require("he");
 
 // normalize text to prevent issues with non-string values and to extract text from objects if needed
@@ -31,12 +31,15 @@ function mapAlign(align) {
 
 // create a table cell with the given text, alignment, and header status
 function makeCell(self, text, align, isHeader) {
+  const normalized = normalizeText(text);
+  const decoded = he.decode(normalized);
+
   return new docx.TableCell({
     children: [
       new docx.Paragraph({
         children: [
           new docx.TextRun({
-            text: he.decode(normalizeText(text)) || "",
+            text: decoded || "",
             bold: isHeader,
             size: self.style.fontSize,
             font: self.style.font,

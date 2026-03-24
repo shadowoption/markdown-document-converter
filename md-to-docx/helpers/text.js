@@ -1,8 +1,8 @@
-const docx = require("docx");
+const docx = require("./docx");
 
 function writeText(text) {
   const options = {
-    text,
+    text: text,
     font: this.style.font,
     bold: this.style.bold,
   };

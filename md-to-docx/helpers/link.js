@@ -1,4 +1,4 @@
-const docx = require("docx");
+const docx = require("./docx");
 
 function writeLink(token) {
   // save the current state of the document and start a new one for the link
