@@ -1,4 +1,4 @@
-const docx = require("docx");
+const docx = require("./docx");
 
 function writeCheckBox(token) {
   this.current.push(new docx.CheckBox({ checked: token.checked }));
