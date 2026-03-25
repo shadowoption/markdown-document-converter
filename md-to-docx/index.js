@@ -8,5 +8,5 @@ module.exports = () => {
       // convert markdown text to docx paragraph array and return the result
       return doc.convert(text);
     },
-  }
+  };
 };
