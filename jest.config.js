@@ -5,6 +5,7 @@ module.exports = {
   collectCoverageFrom: [
     "**/*.js",
     "!**/node_modules/**",
+    "!coverage/**",
     "!**/tests/**",
     "!jest.config.js",
   ],
