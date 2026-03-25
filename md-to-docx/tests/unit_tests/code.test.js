@@ -6,7 +6,7 @@ describe("code.js helpers", () => {
 
   beforeEach(() => {
     mockContext = {
-      current: [],
+      _current: [],
       style: {
         font: "Arial",
         indentLevel: 0,
@@ -17,11 +17,21 @@ describe("code.js helpers", () => {
         this.style = { ...this.style, ...partial };
       }),
       writeText: jest.fn(function(text) {
-        this.current.push(new docx.TextRun({ text }));
+        const current = this.getCurrent();
+        current.push(new docx.TextRun({ text }));
+        this.setCurrent(current);
       }),
       breakLine: jest.fn(function() {
-        this.current.push(new docx.TextRun({ break: 1 }));
+        const current = this.getCurrent();
+        current.push(new docx.TextRun({ break: 1 }));
+        this.setCurrent(current);
       }),
+      getCurrent() {
+        return this._current;
+      },
+      setCurrent(current) {
+        this._current = current;
+      },
     };
   });
 

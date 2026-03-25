@@ -8,11 +8,23 @@ describe("lines.js helpers", () => {
 
   beforeEach(() => {
     mockContext = {
-      paragraphs: [],
-      current: [],
+      _paragraphs: [],
+      _current: [],
       style: {
         blockColor: "858585",
         fontSize: 22,
+      },
+      getParagraphs() {
+        return this._paragraphs;
+      },
+      setParagraphs(paragraphs) {
+        this._paragraphs = paragraphs;
+      },
+      getCurrent() {
+        return this._current;
+      },
+      setCurrent(current) {
+        this._current = current;
       },
     };
 
@@ -39,14 +51,14 @@ describe("lines.js helpers", () => {
     it("should add a paragraph to paragraphs array", () => {
       horizontalLine.call(mockContext);
 
-      expect(mockContext.paragraphs.length).toBe(1);
+      expect(mockContext.getParagraphs().length).toBe(1);
       expect(paragraphSpy).toHaveBeenCalled();
     });
 
     it("should create paragraph with bottom border", () => {
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom).toBeDefined();
     });
 
@@ -54,28 +66,28 @@ describe("lines.js helpers", () => {
       mockContext.style.blockColor = "FF0000";
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom.color).toBe("FF0000");
     });
 
     it("should set border color to default blockColor", () => {
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom.color).toBe("858585");
     });
 
     it("should set border space to 1", () => {
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom.space).toBe(1);
     });
 
     it("should set border style to single", () => {
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom.style).toBe("single");
     });
 
@@ -83,7 +95,7 @@ describe("lines.js helpers", () => {
       mockContext.style.fontSize = 44;
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom.size).toBe(6);
     });
 
@@ -91,14 +103,14 @@ describe("lines.js helpers", () => {
       mockContext.style.fontSize = 5;
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.bottom.size).toBe(6);
     });
 
     it("should only add bottom border", () => {
       horizontalLine.call(mockContext);
 
-      const paragraph = mockContext.paragraphs[0];
+      const paragraph = mockContext.getParagraphs()[0];
       expect(paragraph.border.left).toBeUndefined();
       expect(paragraph.border.right).toBeUndefined();
       expect(paragraph.border.top).toBeUndefined();
@@ -109,7 +121,7 @@ describe("lines.js helpers", () => {
       horizontalLine.call(mockContext);
       horizontalLine.call(mockContext);
 
-      expect(mockContext.paragraphs.length).toBe(2);
+      expect(mockContext.getParagraphs().length).toBe(2);
     });
   });
 
@@ -117,14 +129,14 @@ describe("lines.js helpers", () => {
     it("should add a TextRun to current array", () => {
       breakLine.call(mockContext);
 
-      expect(mockContext.current.length).toBe(1);
+      expect(mockContext.getCurrent().length).toBe(1);
       expect(textRunSpy).toHaveBeenCalled();
     });
 
     it("should create TextRun with empty text", () => {
       breakLine.call(mockContext);
 
-      const textRun = mockContext.current[0];
+      const textRun = mockContext.getCurrent()[0];
       expect(textRun.text).toBe("");
     });
 
@@ -132,14 +144,14 @@ describe("lines.js helpers", () => {
       mockContext.style.fontSize = 28;
       breakLine.call(mockContext);
 
-      const textRun = mockContext.current[0];
+      const textRun = mockContext.getCurrent()[0];
       expect(textRun.size).toBe(28);
     });
 
     it("should set break to 1", () => {
       breakLine.call(mockContext);
 
-      const textRun = mockContext.current[0];
+      const textRun = mockContext.getCurrent()[0];
       expect(textRun.break).toBe(1);
     });
 
@@ -147,7 +159,7 @@ describe("lines.js helpers", () => {
       mockContext.style.fontSize = 22;
       breakLine.call(mockContext);
 
-      const textRun = mockContext.current[0];
+      const textRun = mockContext.getCurrent()[0];
       expect(textRun.size).toBe(22);
     });
 
@@ -156,17 +168,17 @@ describe("lines.js helpers", () => {
       breakLine.call(mockContext);
       breakLine.call(mockContext);
 
-      expect(mockContext.current.length).toBe(3);
+      expect(mockContext.getCurrent().length).toBe(3);
     });
 
     it("should append to existing current array", () => {
       const existing = new docx.TextRun({ text: "existing" });
-      mockContext.current = [existing];
+      mockContext.setCurrent([existing]);
 
       breakLine.call(mockContext);
 
-      expect(mockContext.current.length).toBe(2);
-      expect(mockContext.current[0]).toBe(existing);
+      expect(mockContext.getCurrent().length).toBe(2);
+      expect(mockContext.getCurrent()[0]).toBe(existing);
     });
 
     it("should work with various font sizes", () => {
@@ -174,10 +186,10 @@ describe("lines.js helpers", () => {
 
       sizes.forEach((size) => {
         mockContext.style.fontSize = size;
-        mockContext.current = [];
+        mockContext.setCurrent([]);
         breakLine.call(mockContext);
 
-        expect(mockContext.current[0].size).toBe(size);
+        expect(mockContext.getCurrent()[0].size).toBe(size);
       });
     });
   });

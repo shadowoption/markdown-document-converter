@@ -6,7 +6,7 @@ describe("link.js helpers", () => {
 
   beforeEach(() => {
     mockContext = {
-      current: [],
+      _current: [],
       style: {
         link: null,
         linkColor: "0000EE",
@@ -17,15 +17,23 @@ describe("link.js helpers", () => {
       }),
       DFS: jest.fn(),
       writeText: jest.fn(function(text) {
-        this.current.push(new docx.TextRun({ text }));
+        const current = this.getCurrent();
+        current.push(new docx.TextRun({ text }));
+        this.setCurrent(current);
       }),
+      getCurrent() {
+        return this._current;
+      },
+      setCurrent(current) {
+        this._current = current;
+      },
     };
   });
 
   describe("writeLink", () => {
     it("should save and restore the current state", () => {
       const initialElement = new docx.TextRun({ text: "existing" });
-      mockContext.current = [initialElement];
+      mockContext.setCurrent([initialElement]);
 
       const token = {
         href: "https://example.com",
@@ -35,7 +43,7 @@ describe("link.js helpers", () => {
 
       writeLink.call(mockContext, token);
 
-      expect(mockContext.current).toContain(initialElement);
+      expect(mockContext.getCurrent()).toContain(initialElement);
     });
 
     it("should update style with link href and link color", () => {
@@ -124,7 +132,7 @@ describe("link.js helpers", () => {
 
       writeLink.call(mockContext, token);
 
-      const addedLink = mockContext.current[mockContext.current.length - 1];
+      const addedLink = mockContext.getCurrent()[mockContext.getCurrent().length - 1];
       expect(addedLink instanceof docx.ExternalHyperlink).toBe(true);
     });
 
@@ -158,7 +166,7 @@ describe("link.js helpers", () => {
 
     it("should preserve existing current elements after link", () => {
       const before = new docx.TextRun({ text: "before" });
-      mockContext.current = [before];
+      mockContext.setCurrent([before]);
 
       const token = {
         href: "https://example.com",
@@ -168,8 +176,8 @@ describe("link.js helpers", () => {
 
       writeLink.call(mockContext, token);
 
-      expect(mockContext.current[0]).toBe(before);
-      expect(mockContext.current.length).toBeGreaterThan(1);
+      expect(mockContext.getCurrent()[0]).toBe(before);
+      expect(mockContext.getCurrent().length).toBeGreaterThan(1);
     });
   });
 });

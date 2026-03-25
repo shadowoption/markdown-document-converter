@@ -1,6 +1,6 @@
 const {
-  DEFAULT_STYLE,
-  HEADING_MAP,
+  getDefaultStyle,
+  getHeadingMap,
   pushStyle,
   popStyle,
   updateStyle,
@@ -12,97 +12,124 @@ describe("styles.js helpers", () => {
   let mockContext;
 
   beforeEach(() => {
+    const defaultStyle = getDefaultStyle();
+
     mockContext = {
-      style: { ...DEFAULT_STYLE },
+      style: { ...defaultStyle },
       styleStack: [],
       updateStyle: jest.fn(function(partial = {}) {
         this.style = {
           ...this.style,
           ...partial,
         };
-        this.style.indentSize = this.style.fontSize * 10;
       }),
     };
   });
 
-  describe("DEFAULT_STYLE constant", () => {
+  describe("DEFAULT_STYLE getter", () => {
     it("should have default font Arial", () => {
-      expect(DEFAULT_STYLE.font).toBe("Arial");
+      expect(getDefaultStyle().font).toBe("Arial");
     });
 
     it("should have default text color", () => {
-      expect(DEFAULT_STYLE.textColor).toBe("333333");
+      expect(getDefaultStyle().textColor).toBe("333333");
     });
 
     it("should have default link color", () => {
-      expect(DEFAULT_STYLE.linkColor).toBe("0000EE");
+      expect(getDefaultStyle().linkColor).toBe("0000EE");
     });
 
     it("should have default block color", () => {
-      expect(DEFAULT_STYLE.blockColor).toBe("858585");
+      expect(getDefaultStyle().blockColor).toBe("858585");
     });
 
     it("should have empty prefix by default", () => {
-      expect(DEFAULT_STYLE.prefix).toBe("");
+      expect(getDefaultStyle().prefix).toBe("");
     });
 
     it("should have default font size of 22", () => {
-      expect(DEFAULT_STYLE.fontSize).toBe(22);
+      expect(getDefaultStyle().fontSize).toBe(22);
     });
 
     it("should have default indent level of 0", () => {
-      expect(DEFAULT_STYLE.indentLevel).toBe(0);
+      expect(getDefaultStyle().indentLevel).toBe(0);
     });
 
     it("should have all text styles set to false by default", () => {
-      expect(DEFAULT_STYLE.bold).toBe(false);
-      expect(DEFAULT_STYLE.italics).toBe(false);
-      expect(DEFAULT_STYLE.strike).toBe(false);
-      expect(DEFAULT_STYLE.code).toBe(false);
-      expect(DEFAULT_STYLE.quote).toBe(false);
+      const style = getDefaultStyle();
+      expect(style.bold).toBe(false);
+      expect(style.italics).toBe(false);
+      expect(style.strike).toBe(false);
+      expect(style.code).toBe(false);
+      expect(style.quote).toBe(false);
     });
 
     it("should have ordered set to false by default", () => {
-      expect(DEFAULT_STYLE.ordered).toBe(false);
+      expect(getDefaultStyle().ordered).toBe(false);
     });
 
     it("should have heading level and link as null", () => {
-      expect(DEFAULT_STYLE.headingLevel).toBeNull();
-      expect(DEFAULT_STYLE.link).toBeNull();
+      const style = getDefaultStyle();
+      expect(style.headingLevel).toBeNull();
+      expect(style.link).toBeNull();
+    });
+
+    it("should return a copy from getDefaultStyle", () => {
+      const style = getDefaultStyle();
+      const styleAgain = getDefaultStyle();
+
+      expect(style).toEqual(styleAgain);
+      expect(style).not.toBe(styleAgain);
+    });
+
+    it("should not expose setDefaultStyle", () => {
+      expect(typeof require("../../helpers/styles").setDefaultStyle).toBe("undefined");
     });
   });
 
-  describe("HEADING_MAP constant", () => {
+  describe("HEADING_MAP getter", () => {
     it("should have 7 elements (index 0-6)", () => {
-      expect(HEADING_MAP.length).toBe(7);
+      expect(getHeadingMap().length).toBe(7);
     });
 
     it("should have null at index 0", () => {
-      expect(HEADING_MAP[0]).toBeNull();
+      expect(getHeadingMap()[0]).toBeNull();
     });
 
     it("should map index 1 to HEADING_1", () => {
-      expect(HEADING_MAP[1]).toBe(docx.HeadingLevel.HEADING_1);
+      expect(getHeadingMap()[1]).toBe(docx.HeadingLevel.HEADING_1);
     });
 
     it("should map index 2 to HEADING_2", () => {
-      expect(HEADING_MAP[2]).toBe(docx.HeadingLevel.HEADING_2);
+      expect(getHeadingMap()[2]).toBe(docx.HeadingLevel.HEADING_2);
     });
 
     it("should map index 3 to HEADING_3", () => {
-      expect(HEADING_MAP[3]).toBe(docx.HeadingLevel.HEADING_3);
+      expect(getHeadingMap()[3]).toBe(docx.HeadingLevel.HEADING_3);
     });
 
     it("should map index 4 to HEADING_4", () => {
-      expect(HEADING_MAP[4]).toBe(docx.HeadingLevel.HEADING_4);
+      expect(getHeadingMap()[4]).toBe(docx.HeadingLevel.HEADING_4);
     });
 
     it("should map index 5 to HEADING_5", () => {
-      expect(HEADING_MAP[5]).toBe(docx.HeadingLevel.HEADING_5);
+      expect(getHeadingMap()[5]).toBe(docx.HeadingLevel.HEADING_5);
     });
 
     it("should map index 6 to HEADING_6", () => {
-      expect(HEADING_MAP[6]).toBe(docx.HeadingLevel.HEADING_6);
+      expect(getHeadingMap()[6]).toBe(docx.HeadingLevel.HEADING_6);
+    });
+
+    it("should return a copy from getHeadingMap", () => {
+      const headingMap = getHeadingMap();
+      const headingMapAgain = getHeadingMap();
+
+      expect(headingMap).toEqual(headingMapAgain);
+      expect(headingMap).not.toBe(headingMapAgain);
+    });
+
+    it("should not expose setHeadingMap", () => {
+      expect(typeof require("../../helpers/styles").setHeadingMap).toBe("undefined");
     });
   });
 
@@ -156,18 +183,18 @@ describe("styles.js helpers", () => {
   });
 
   describe("popStyle", () => {
-    it("should not throw if styleStack is empty", () => {
+    it("should throw if styleStack is empty", () => {
       mockContext.styleStack = [];
       expect(() => {
         popStyle.call(mockContext);
-      }).not.toThrow();
+      }).toThrow("Style stack underflow: no styles to pop");
     });
 
-    it("should not throw if styleStack is undefined", () => {
+    it("should throw if styleStack is undefined", () => {
       delete mockContext.styleStack;
       expect(() => {
         popStyle.call(mockContext);
-      }).not.toThrow();
+      }).toThrow("Style stack underflow: no styles to pop");
     });
 
     it("should restore style from stack", () => {
@@ -241,10 +268,10 @@ describe("styles.js helpers", () => {
       expect(mockContext.style.fontSize).toBe(28);
     });
 
-    it("should calculate indentSize as fontSize * 10", () => {
+    it("should update fontSize", () => {
       updateStyle.call(mockContext, { fontSize: 20 });
 
-      expect(mockContext.style.indentSize).toBe(200);
+      expect(mockContext.style.fontSize).toBe(20);
     });
 
     it("should work with empty partial", () => {
@@ -254,12 +281,12 @@ describe("styles.js helpers", () => {
       expect(mockContext.style.fontSize).toBe(original.fontSize);
     });
 
-    it("should recalculate indentSize every time", () => {
+    it("should update values on repeated calls", () => {
       updateStyle.call(mockContext, { fontSize: 22 });
-      expect(mockContext.style.indentSize).toBe(220);
+      expect(mockContext.style.fontSize).toBe(22);
 
       updateStyle.call(mockContext, { fontSize: 24 });
-      expect(mockContext.style.indentSize).toBe(240);
+      expect(mockContext.style.fontSize).toBe(24);
     });
 
     it("should not require default parameter", () => {

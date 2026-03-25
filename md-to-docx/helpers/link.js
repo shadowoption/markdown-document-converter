@@ -1,9 +1,10 @@
 const docx = require("./docx");
 
 function writeLink(token) {
+  const current = this.getCurrent();
   // save the current state of the document and start a new one for the link
-  const state = this.current.slice();
-  this.current = [];
+  const state = current.slice();
+  this.setCurrent([]);
 
   this.updateStyle({ link: token.href, textColor: this.style.linkColor });
 
@@ -16,14 +17,16 @@ function writeLink(token) {
     this.writeText(` (${token.title})`);
   }
 
+  const linkChildren = this.getCurrent();
   const link = new docx.ExternalHyperlink({
-    children: this.current,
+    children: linkChildren,
     link: token.href,
   });
 
   // restore the previous state of the document and add the link
-  this.current = state.slice();
-  this.current.push(link);
+  const restored = state.slice();
+  restored.push(link);
+  this.setCurrent(restored);
 }
 
 module.exports = { writeLink };

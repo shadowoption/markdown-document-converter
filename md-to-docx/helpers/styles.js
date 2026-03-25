@@ -1,6 +1,6 @@
 const docx = require("./docx");
 
-const DEFAULT_STYLE = {
+const _DEFAULT_STYLE = {
   font: "Arial",
   textColor: "333333",
   linkColor: "0000EE",
@@ -21,7 +21,7 @@ const DEFAULT_STYLE = {
   ordered: false,
 };
 
-const HEADING_MAP = [
+const _HEADING_MAP = [
   null,
   docx.HeadingLevel.HEADING_1,
   docx.HeadingLevel.HEADING_2,
@@ -30,6 +30,14 @@ const HEADING_MAP = [
   docx.HeadingLevel.HEADING_5,
   docx.HeadingLevel.HEADING_6,
 ];
+
+function getDefaultStyle() {
+  return { ..._DEFAULT_STYLE };
+}
+
+function getHeadingMap() {
+  return [..._HEADING_MAP];
+}
 
 // push the current style onto the stack
 function pushStyle() {
@@ -42,6 +50,9 @@ function popStyle() {
   if (this.styleStack && this.styleStack.length > 0) {
     this.style = this.styleStack.pop();
   }
+  else {
+    throw new Error("Style stack underflow: no styles to pop");
+  }
 }
 
 // update the current style with the given partial style
@@ -50,7 +61,6 @@ function updateStyle(partial = {}) {
     ...this.style,
     ...partial,
   };
-  this.style.indentSize = this.style.fontSize * 10;
 }
 
 // set text style based on the given type (e.g., "strong", "em", "del")
@@ -71,8 +81,8 @@ function setTextStyle(type) {
 }
 
 module.exports = {
-  DEFAULT_STYLE,
-  HEADING_MAP,
+  getDefaultStyle,
+  getHeadingMap,
   pushStyle,
   popStyle,
   updateStyle,

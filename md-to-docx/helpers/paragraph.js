@@ -1,10 +1,11 @@
 const docx = require("./docx");
 
 function groupParagraph() {
-  if (this.current.length === 0) return;
+  const current = this.getCurrent();
+  if (current.length === 0) return;
 
   const options = {
-    children: this.current,
+    children: current,
   };
 
   if (this.style.headingLevel) {
@@ -39,12 +40,14 @@ function groupParagraph() {
 
   if (this.style.indentLevel > 0) {
     options.indent = {
-      left: this.style.indentLevel * this.style.indentSize,
+      left: this.style.indentLevel * this.style.fontSize * 10,
     };
   }
 
-  this.paragraphs.push(new docx.Paragraph(options));
-  this.current = [];
+  const paragraphs = this.getParagraphs();
+  paragraphs.push(new docx.Paragraph(options));
+  this.setParagraphs(paragraphs);
+  this.setCurrent([]);
 }
 
 module.exports = { groupParagraph };

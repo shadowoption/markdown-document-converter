@@ -6,7 +6,7 @@ describe("list.js helpers", () => {
 
   beforeEach(() => {
     mockContext = {
-      current: [],
+      _current: [],
       style: {
         prefix: "",
         indentLevel: 0,
@@ -18,11 +18,21 @@ describe("list.js helpers", () => {
       }),
       DFS: jest.fn(),
       writeText: jest.fn(function(text) {
-        this.current.push(new docx.TextRun({ text }));
+        const current = this.getCurrent();
+        current.push(new docx.TextRun({ text }));
+        this.setCurrent(current);
       }),
       breakLine: jest.fn(function() {
-        this.current.push(new docx.TextRun({ break: 1 }));
+        const current = this.getCurrent();
+        current.push(new docx.TextRun({ break: 1 }));
+        this.setCurrent(current);
       }),
+      getCurrent() {
+        return this._current;
+      },
+      setCurrent(current) {
+        this._current = current;
+      },
     };
   });
 
@@ -31,16 +41,16 @@ describe("list.js helpers", () => {
       const token = { checked: true };
       writeCheckBox.call(mockContext, token);
 
-      expect(mockContext.current.length).toBe(1);
-      expect(mockContext.current[0] instanceof docx.CheckBox).toBe(true);
+      expect(mockContext.getCurrent().length).toBe(1);
+      expect(mockContext.getCurrent()[0] instanceof docx.CheckBox).toBe(true);
     });
 
     it("should handle unchecked checkbox", () => {
       const token = { checked: false };
       writeCheckBox.call(mockContext, token);
 
-      expect(mockContext.current.length).toBe(1);
-      expect(mockContext.current[0] instanceof docx.CheckBox).toBe(true);
+      expect(mockContext.getCurrent().length).toBe(1);
+      expect(mockContext.getCurrent()[0] instanceof docx.CheckBox).toBe(true);
     });
 
     it("should update style with space prefix after checkbox", () => {

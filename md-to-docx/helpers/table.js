@@ -55,6 +55,7 @@ function makeCell(self, text, align, isHeader) {
 
 // process a markdown table token and convert it to a docx table
 function processTable(token) {
+  const paragraphs = this.getParagraphs();
   const rows = [];
   const headers = [];
 
@@ -94,7 +95,8 @@ function processTable(token) {
     width: { size: 100, type: docx.WidthType.PERCENTAGE },
   });
 
-  this.paragraphs.push(table);
+  paragraphs.push(table);
+  this.setParagraphs(paragraphs);
 }
 
 module.exports = { processTable };
