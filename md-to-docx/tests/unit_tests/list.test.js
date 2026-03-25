@@ -8,7 +8,6 @@ describe("list.js helpers", () => {
     mockContext = {
       _current: [],
       style: {
-        prefix: "",
         indentLevel: 0,
         ordered: false,
       },
@@ -53,11 +52,11 @@ describe("list.js helpers", () => {
       expect(mockContext.getCurrentTextRuns()[0] instanceof docx.CheckBox).toBe(true);
     });
 
-    it("should update style with space prefix after checkbox", () => {
+    it("should keep writing checkbox without relying on style prefix", () => {
       const token = { checked: true };
       writeCheckBox.call(mockContext, token);
 
-      expect(mockContext.updateStyle).toHaveBeenCalledWith({ prefix: " " });
+      expect(mockContext.getCurrentTextRuns()[0] instanceof docx.CheckBox).toBe(true);
     });
   });
 
@@ -73,20 +72,15 @@ describe("list.js helpers", () => {
       expect(mockContext.groupParagraph).toHaveBeenCalled();
     });
 
-    it("should update style with bullet prefix for unordered lists", () => {
+    it("should assign bullet prefix on each unordered list item", () => {
       const token = {
         ordered: false,
         start: 1,
-        items: [],
+        items: [{ type: "list_item", tokens: [] }],
       };
       writeList.call(mockContext, token);
 
-      expect(mockContext.updateStyle).toHaveBeenCalledWith(
-        expect.objectContaining({
-          prefix: "\u2022 ",
-          ordered: false,
-        })
-      );
+      expect(token.items[0].prefix).toBe("\u2022 ");
     });
 
     it("should increment indent level", () => {
@@ -150,19 +144,8 @@ describe("list.js helpers", () => {
         })
       );
 
-      // Subsequent calls set numbered prefixes for each item
-      expect(mockContext.updateStyle).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({
-          prefix: "1. ",
-        })
-      );
-      expect(mockContext.updateStyle).toHaveBeenNthCalledWith(
-        3,
-        expect.objectContaining({
-          prefix: "2. ",
-        })
-      );
+      expect(item1.prefix).toBe("1. ");
+      expect(item2.prefix).toBe("2. ");
     });
 
     it("should handle ordered lists starting from different number", () => {
@@ -173,11 +156,7 @@ describe("list.js helpers", () => {
       };
       writeList.call(mockContext, token);
 
-      expect(mockContext.updateStyle).toHaveBeenCalledWith(
-        expect.objectContaining({
-          prefix: "5. ",
-        })
-      );
+      expect(token.items[0].prefix).toBe("5. ");
     });
 
     it("should handle empty items array", () => {
@@ -224,44 +203,40 @@ describe("list.js helpers", () => {
     });
 
     it("should write the prefix text", () => {
-      mockContext.style.prefix = "• ";
-      const token = { loose: false, task: false, tokens: [] };
+      const token = { loose: false, task: false, prefix: "• ", tokens: [] };
       writeListItem.call(mockContext, token);
 
       expect(mockContext.writeText).toHaveBeenCalledWith("• ");
     });
 
-    it("should reset prefix after writing", () => {
-      mockContext.style.prefix = "1. ";
-      const token = { loose: false, task: false, tokens: [] };
+    it("should not reset style prefix after writing", () => {
+      const token = { loose: false, task: false, prefix: "1. ", tokens: [] };
       writeListItem.call(mockContext, token);
 
-      expect(mockContext.updateStyle).toHaveBeenCalledWith({ prefix: "" });
+      expect(mockContext.updateStyle).not.toHaveBeenCalledWith({ prefix: "" });
     });
 
     it("should process nested tokens using DFS", () => {
-      mockContext.style.prefix = "• ";
       const tokens = [{ type: "text", text: "item text" }];
-      const token = { loose: false, task: false, tokens };
+      const token = { loose: false, task: false, prefix: "• ", tokens };
       writeListItem.call(mockContext, token);
 
       expect(mockContext.DFS).toHaveBeenCalledWith(tokens);
     });
 
     it("should handle list items with no tokens", () => {
-      mockContext.style.prefix = "• ";
-      const token = { loose: false, task: false, tokens: [] };
+      const token = { loose: false, task: false, prefix: "• ", tokens: [] };
       writeListItem.call(mockContext, token);
 
       expect(mockContext.DFS).toHaveBeenCalledWith([]);
     });
 
     it("should handle task list item with checked state", () => {
-      mockContext.style.prefix = "☐ ";
       mockContext.writeCheckBox = jest.fn();
       const token = {
         loose: false,
         task: true,
+        prefix: "☐ ",
         tokens: [],
         checked: true,
       };

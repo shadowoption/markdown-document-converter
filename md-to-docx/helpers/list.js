@@ -11,7 +11,6 @@ function writeList(token) {
   this.groupParagraph();
   // add bullet point prefix and increase indent level
   this.updateStyle({
-    prefix: "\u2022 ",
     indentLevel: this.style.indentLevel + 1,
     ordered: token.ordered,
   });
@@ -19,7 +18,10 @@ function writeList(token) {
     const item = token.items[i];
     // if ordered, replace bullet point with current index for numbering
     if (token.ordered) {
-      this.updateStyle({ prefix: `${token.start + i}. ` });
+      item.prefix = `${token.start + i}. `;
+    }
+    else {
+      item.prefix = "\u2022 ";
     }
     this.DFS([item]);
     this.groupParagraph();
@@ -33,8 +35,7 @@ function writeListItem(token) {
   if (token.task) {
     this.writeCheckBox(token);
   }
-  this.writeText(this.style.prefix);
-  this.updateStyle({ prefix: "" });
+  this.writeText(token.prefix);
   this.DFS(token.tokens);
 }
 

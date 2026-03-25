@@ -5,8 +5,6 @@ const _DEFAULT_STYLE = {
   textColor: "333333",
   linkColor: "0000EE",
   blockColor: "858585",
-  prefix: "",
-
   fontSize: 22,
   indentLevel: 0,
 
