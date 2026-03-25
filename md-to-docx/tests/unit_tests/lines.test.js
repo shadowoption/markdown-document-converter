@@ -1,4 +1,4 @@
-const { horizontalLine, breakLine } = require("../../helpers/lines");
+const { horizontalLine, lineBreak } = require("../../helpers/lines");
 const docx = require("docx");
 
 describe("lines.js helpers", () => {
@@ -20,11 +20,11 @@ describe("lines.js helpers", () => {
       setParagraphs(paragraphs) {
         this._paragraphs = paragraphs;
       },
-      getCurrent() {
+      getCurrentTextRuns() {
         return this._current;
       },
-      setCurrent(current) {
-        this._current = current;
+      setCurrentTextRuns(currentTextRuns) {
+        this._current = currentTextRuns;
       },
     };
 
@@ -125,60 +125,60 @@ describe("lines.js helpers", () => {
     });
   });
 
-  describe("breakLine", () => {
+  describe("lineBreak", () => {
     it("should add a TextRun to current array", () => {
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
 
-      expect(mockContext.getCurrent().length).toBe(1);
+      expect(mockContext.getCurrentTextRuns().length).toBe(1);
       expect(textRunSpy).toHaveBeenCalled();
     });
 
     it("should create TextRun with empty text", () => {
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.text).toBe("");
     });
 
     it("should set font size from style", () => {
       mockContext.style.fontSize = 28;
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.size).toBe(28);
     });
 
     it("should set break to 1", () => {
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.break).toBe(1);
     });
 
     it("should use default fontSize if not set", () => {
       mockContext.style.fontSize = 22;
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.size).toBe(22);
     });
 
     it("should add multiple break lines", () => {
-      breakLine.call(mockContext);
-      breakLine.call(mockContext);
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
+      lineBreak.call(mockContext);
+      lineBreak.call(mockContext);
 
-      expect(mockContext.getCurrent().length).toBe(3);
+      expect(mockContext.getCurrentTextRuns().length).toBe(3);
     });
 
     it("should append to existing current array", () => {
       const existing = new docx.TextRun({ text: "existing" });
-      mockContext.setCurrent([existing]);
+      mockContext.setCurrentTextRuns([existing]);
 
-      breakLine.call(mockContext);
+      lineBreak.call(mockContext);
 
-      expect(mockContext.getCurrent().length).toBe(2);
-      expect(mockContext.getCurrent()[0]).toBe(existing);
+      expect(mockContext.getCurrentTextRuns().length).toBe(2);
+      expect(mockContext.getCurrentTextRuns()[0]).toBe(existing);
     });
 
     it("should work with various font sizes", () => {
@@ -186,10 +186,10 @@ describe("lines.js helpers", () => {
 
       sizes.forEach((size) => {
         mockContext.style.fontSize = size;
-        mockContext.setCurrent([]);
-        breakLine.call(mockContext);
+        mockContext.setCurrentTextRuns([]);
+        lineBreak.call(mockContext);
 
-        expect(mockContext.getCurrent()[0].size).toBe(size);
+        expect(mockContext.getCurrentTextRuns()[0].size).toBe(size);
       });
     });
   });

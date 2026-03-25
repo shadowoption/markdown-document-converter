@@ -19,11 +19,11 @@ describe("text.js helpers", () => {
         strike: false,
         link: null,
       },
-      getCurrent() {
+      getCurrentTextRuns() {
         return this._current;
       },
-      setCurrent(current) {
-        this._current = current;
+      setCurrentTextRuns(currentTextRuns) {
+        this._current = currentTextRuns;
       },
     };
 
@@ -49,28 +49,28 @@ describe("text.js helpers", () => {
     it("should add TextRun to current array", () => {
       writeText.call(mockContext, "Hello");
 
-      expect(mockContext.getCurrent().length).toBe(1);
-      expect(mockContext.getCurrent()[0] instanceof docx.TextRun).toBe(true);
+      expect(mockContext.getCurrentTextRuns().length).toBe(1);
+      expect(mockContext.getCurrentTextRuns()[0] instanceof docx.TextRun).toBe(true);
     });
 
     it("should set text in TextRun", () => {
       writeText.call(mockContext, "Hello World");
 
-      expect(mockContext.getCurrent()[0].text).toBe("Hello World");
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe("Hello World");
     });
 
     it("should set font from style", () => {
       mockContext.style.font = "Courier";
       writeText.call(mockContext, "code");
 
-      expect(mockContext.getCurrent()[0].font).toBe("Courier");
+      expect(mockContext.getCurrentTextRuns()[0].font).toBe("Courier");
     });
 
     it("should set bold from style", () => {
       mockContext.style.bold = true;
       writeText.call(mockContext, "bold text");
 
-      expect(mockContext.getCurrent()[0].bold).toBe(true);
+      expect(mockContext.getCurrentTextRuns()[0].bold).toBe(true);
     });
 
     it("should not set color and italics for headings", () => {
@@ -79,7 +79,7 @@ describe("text.js helpers", () => {
       mockContext.style.italics = true;
       writeText.call(mockContext, "heading");
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.color).toBeUndefined();
       expect(textRun.italics).toBeUndefined();
       expect(textRun.strike).toBeUndefined();
@@ -90,7 +90,7 @@ describe("text.js helpers", () => {
       mockContext.style.textColor = "FF0000";
       writeText.call(mockContext, "colored");
 
-      expect(mockContext.getCurrent()[0].color).toBe("FF0000");
+      expect(mockContext.getCurrentTextRuns()[0].color).toBe("FF0000");
     });
 
     it("should set italics for non-heading text", () => {
@@ -98,7 +98,7 @@ describe("text.js helpers", () => {
       mockContext.style.italics = true;
       writeText.call(mockContext, "italic");
 
-      expect(mockContext.getCurrent()[0].italics).toBe(true);
+      expect(mockContext.getCurrentTextRuns()[0].italics).toBe(true);
     });
 
     it("should set strike through for non-heading text", () => {
@@ -106,14 +106,14 @@ describe("text.js helpers", () => {
       mockContext.style.strike = true;
       writeText.call(mockContext, "strikethrough");
 
-      expect(mockContext.getCurrent()[0].strike).toBe(true);
+      expect(mockContext.getCurrentTextRuns()[0].strike).toBe(true);
     });
 
     it("should set size for non-heading text", () => {
       mockContext.style.fontSize = 24;
       writeText.call(mockContext, "sized");
 
-      expect(mockContext.getCurrent()[0].size).toBe(24);
+      expect(mockContext.getCurrentTextRuns()[0].size).toBe(24);
     });
 
     it("should not set size for heading text", () => {
@@ -121,48 +121,48 @@ describe("text.js helpers", () => {
       mockContext.style.fontSize = 28;
       writeText.call(mockContext, "heading");
 
-      expect(mockContext.getCurrent()[0].size).toBeUndefined();
+      expect(mockContext.getCurrentTextRuns()[0].size).toBeUndefined();
     });
 
     it("should set style to Hyperlink when link is present", () => {
       mockContext.style.link = "https://example.com";
       writeText.call(mockContext, "link text");
 
-      expect(mockContext.getCurrent()[0].style).toBe("Hyperlink");
+      expect(mockContext.getCurrentTextRuns()[0].style).toBe("Hyperlink");
     });
 
     it("should not set style to Hyperlink when no link", () => {
       mockContext.style.link = null;
       writeText.call(mockContext, "normal text");
 
-      expect(mockContext.getCurrent()[0].style).toBeUndefined();
+      expect(mockContext.getCurrentTextRuns()[0].style).toBeUndefined();
     });
 
     it("should handle empty text", () => {
       writeText.call(mockContext, "");
 
-      expect(mockContext.getCurrent()[0].text).toBe("");
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe("");
     });
 
     it("should handle special characters", () => {
       writeText.call(mockContext, "<script>alert('xss')</script>");
 
-      expect(mockContext.getCurrent()[0].text).toBe("<script>alert('xss')</script>");
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe("<script>alert('xss')</script>");
     });
 
     it("should handle multiline text", () => {
       writeText.call(mockContext, "Line 1\nLine 2\nLine 3");
 
-      expect(mockContext.getCurrent()[0].text).toBe("Line 1\nLine 2\nLine 3");
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe("Line 1\nLine 2\nLine 3");
     });
 
     it("should add multiple TextRuns to current", () => {
       writeText.call(mockContext, "First");
       writeText.call(mockContext, "Second");
 
-      expect(mockContext.getCurrent().length).toBe(2);
-      expect(mockContext.getCurrent()[0].text).toBe("First");
-      expect(mockContext.getCurrent()[1].text).toBe("Second");
+      expect(mockContext.getCurrentTextRuns().length).toBe(2);
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe("First");
+      expect(mockContext.getCurrentTextRuns()[1].text).toBe("Second");
     });
 
     it("should handle text with bold and heading", () => {
@@ -170,7 +170,7 @@ describe("text.js helpers", () => {
       mockContext.style.headingLevel = docx.HeadingLevel.HEADING_1;
       writeText.call(mockContext, "bold heading");
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.bold).toBe(true);
       expect(textRun.color).toBeUndefined();
       expect(textRun.size).toBeUndefined();
@@ -189,7 +189,7 @@ describe("text.js helpers", () => {
       };
       writeText.call(mockContext, "formatted");
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.text).toBe("formatted");
       expect(textRun.font).toBe("Consolas");
       expect(textRun.bold).toBe(true);
@@ -202,13 +202,13 @@ describe("text.js helpers", () => {
 
     it("should preserve existing current when adding new text", () => {
       const first = new docx.TextRun({ text: "first" });
-      mockContext.setCurrent([first]);
+      mockContext.setCurrentTextRuns([first]);
 
       writeText.call(mockContext, "second");
 
-      expect(mockContext.getCurrent().length).toBe(2);
-      expect(mockContext.getCurrent()[0]).toBe(first);
-      expect(mockContext.getCurrent()[1].text).toBe("second");
+      expect(mockContext.getCurrentTextRuns().length).toBe(2);
+      expect(mockContext.getCurrentTextRuns()[0]).toBe(first);
+      expect(mockContext.getCurrentTextRuns()[1].text).toBe("second");
     });
 
     it("should handle strike through with other styles", () => {
@@ -217,7 +217,7 @@ describe("text.js helpers", () => {
       mockContext.style.italics = true;
       writeText.call(mockContext, "struck");
 
-      const textRun = mockContext.getCurrent()[0];
+      const textRun = mockContext.getCurrentTextRuns()[0];
       expect(textRun.strike).toBe(true);
       expect(textRun.bold).toBe(true);
       expect(textRun.italics).toBe(true);
@@ -228,20 +228,20 @@ describe("text.js helpers", () => {
       mockContext.style.headingLevel = docx.HeadingLevel.HEADING_3;
       writeText.call(mockContext, "heading");
 
-      expect(mockContext.getCurrent()[0].strike).toBeUndefined();
+      expect(mockContext.getCurrentTextRuns()[0].strike).toBeUndefined();
     });
 
     it("should handle unicode text", () => {
       writeText.call(mockContext, "Hello 世界 مرحبا");
 
-      expect(mockContext.getCurrent()[0].text).toBe("Hello 世界 مرحبا");
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe("Hello 世界 مرحبا");
     });
 
     it("should handle very long text", () => {
       const longText = "a".repeat(10000);
       writeText.call(mockContext, longText);
 
-      expect(mockContext.getCurrent()[0].text).toBe(longText);
+      expect(mockContext.getCurrentTextRuns()[0].text).toBe(longText);
     });
   });
 });

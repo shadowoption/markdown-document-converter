@@ -17,20 +17,20 @@ describe("code.js helpers", () => {
         this.style = { ...this.style, ...partial };
       }),
       writeText: jest.fn(function(text) {
-        const current = this.getCurrent();
-        current.push(new docx.TextRun({ text }));
-        this.setCurrent(current);
+        const currentTextRuns = this.getCurrentTextRuns();
+        currentTextRuns.push(new docx.TextRun({ text }));
+        this.setCurrentTextRuns(currentTextRuns);
       }),
-      breakLine: jest.fn(function() {
-        const current = this.getCurrent();
-        current.push(new docx.TextRun({ break: 1 }));
-        this.setCurrent(current);
+      lineBreak: jest.fn(function() {
+        const currentTextRuns = this.getCurrentTextRuns();
+        currentTextRuns.push(new docx.TextRun({ break: 1 }));
+        this.setCurrentTextRuns(currentTextRuns);
       }),
-      getCurrent() {
+      getCurrentTextRuns() {
         return this._current;
       },
-      setCurrent(current) {
-        this._current = current;
+      setCurrentTextRuns(currentTextRuns) {
+        this._current = currentTextRuns;
       },
     };
   });
@@ -69,7 +69,7 @@ describe("code.js helpers", () => {
       const token = { lines, codeBlockStyle: false };
       writeCode.call(mockContext, token);
 
-      expect(mockContext.breakLine).toHaveBeenCalledTimes(2);
+      expect(mockContext.lineBreak).toHaveBeenCalledTimes(2);
     });
 
     it("should increment indent level when codeBlockStyle is true", () => {
@@ -96,7 +96,7 @@ describe("code.js helpers", () => {
       writeCode.call(mockContext, token);
 
       expect(mockContext.writeText).not.toHaveBeenCalled();
-      expect(mockContext.breakLine).not.toHaveBeenCalled();
+      expect(mockContext.lineBreak).not.toHaveBeenCalled();
     });
   });
 

@@ -15,7 +15,7 @@ describe("heading.js helpers", () => {
         this.style = { ...this.style, ...partial };
       }),
       DFS: jest.fn(),
-      breakLine: jest.fn(),
+      lineBreak: jest.fn(),
     };
   });
 
@@ -122,7 +122,7 @@ describe("heading.js helpers", () => {
       const token = { depth: 1, tokens: [] };
       writeHeading.call(mockContext, token);
 
-      expect(mockContext.breakLine).toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
     it("should set heading level to null for invalid depth", () => {
