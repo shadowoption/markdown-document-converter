@@ -30,8 +30,8 @@ describe("MarkdownToDocx class", () => {
     it("should initialize with default style", () => {
       const doc = new MarkdownToDocx();
 
-      expect(doc.paragraphs).toEqual([]);
-      expect(doc.current).toEqual([]);
+      expect(doc.getParagraphs()).toEqual([]);
+      expect(doc.getCurrent()).toEqual([]);
       expect(doc.styleStack).toEqual([]);
       expect(doc.style.font).toBe("Arial");
       expect(doc.style.fontSize).toBe(22);
@@ -45,10 +45,10 @@ describe("MarkdownToDocx class", () => {
       expect(doc.style.fontSize).toBe(20);
     });
 
-    it("should calculate indentSize", () => {
+    it("should keep style without derived indent field", () => {
       const doc = new MarkdownToDocx({ fontSize: 30 });
 
-      expect(doc.style.indentSize).toBe(300);
+      expect(doc.style.fontSize).toBe(30);
     });
 
     it("should bind all helper methods", () => {
@@ -87,6 +87,85 @@ describe("MarkdownToDocx class", () => {
 
       method({ bold: true });
       expect(doc.style.bold).toBe(true);
+    });
+
+    it("should get and set current", () => {
+      const doc = new MarkdownToDocx();
+      const value = [{ text: "x" }];
+
+      doc.setCurrent(value);
+
+      expect(doc.getCurrent()).toBe(value);
+    });
+
+    it("should get and set paragraphs", () => {
+      const doc = new MarkdownToDocx();
+      const value = [{ paragraph: true }];
+
+      doc.setParagraphs(value);
+
+      expect(doc.getParagraphs()).toBe(value);
+    });
+
+    it("should get and set style", () => {
+      const doc = new MarkdownToDocx();
+      const value = { font: "Courier" };
+
+      doc.setStyle(value);
+
+      expect(doc.getStyle()).toBe(value);
+    });
+
+    it("should get and set styleStack", () => {
+      const doc = new MarkdownToDocx();
+      const value = [{ bold: true }];
+
+      doc.setStyleStack(value);
+
+      expect(doc.getStyleStack()).toBe(value);
+    });
+
+    it("should throw for invalid current", () => {
+      const doc = new MarkdownToDocx();
+
+      expect(() => doc.setCurrent({})).toThrow("current must be an array");
+    });
+
+    it("should throw for invalid paragraphs", () => {
+      const doc = new MarkdownToDocx();
+
+      expect(() => doc.setParagraphs({})).toThrow("paragraphs must be an array");
+    });
+
+    it("should throw for invalid style", () => {
+      const doc = new MarkdownToDocx();
+
+      expect(() => doc.setStyle([])).toThrow("style must be an object");
+      expect(() => doc.setStyle(null)).toThrow("style must be an object");
+    });
+
+    it("should throw for invalid styleStack", () => {
+      const doc = new MarkdownToDocx();
+
+      expect(() => doc.setStyleStack({})).toThrow("styleStack must be an array");
+    });
+
+    it("should expose default style getter", () => {
+      const doc = new MarkdownToDocx();
+      const style = doc.getDefaultStyle();
+
+      expect(style).toBeDefined();
+      expect(style.font).toBe("Arial");
+      expect(typeof doc.setDefaultStyle).toBe("undefined");
+    });
+
+    it("should expose heading map getter", () => {
+      const doc = new MarkdownToDocx();
+      const headingMap = doc.getHeadingMap();
+
+      expect(Array.isArray(headingMap)).toBe(true);
+      expect(headingMap[1]).toBe(docx.HeadingLevel.HEADING_1);
+      expect(typeof doc.setHeadingMap).toBe("undefined");
     });
   });
 
@@ -266,7 +345,7 @@ describe("MarkdownToDocx class", () => {
 
       doc.convert("test");
 
-      expect(doc.current.length).toBe(0);
+      expect(doc.getCurrent().length).toBe(0);
     });
 
     it("should handle multiple conversions", () => {

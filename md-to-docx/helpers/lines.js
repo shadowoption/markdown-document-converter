@@ -1,6 +1,7 @@
 const docx = require("./docx");
 
 function horizontalLine() {
+  const paragraphs = this.getParagraphs();
   const options = {
     border: {
       bottom: {
@@ -11,20 +12,23 @@ function horizontalLine() {
       },
     },
   }
-  this.paragraphs.push(
+  paragraphs.push(
     new docx.Paragraph(options),
   );
+  this.setParagraphs(paragraphs);
 }
 
 function breakLine() {
+  const current = this.getCurrent();
   const options = {
     text: "",
     size: this.style.fontSize,
     break: 1,
   }
-  this.current.push(
+  current.push(
     new docx.TextRun(options),
   );
+  this.setCurrent(current);
 }
 
 module.exports = { horizontalLine, breakLine };

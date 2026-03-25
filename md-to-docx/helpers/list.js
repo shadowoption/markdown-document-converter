@@ -1,7 +1,9 @@
 const docx = require("./docx");
 
 function writeCheckBox(token) {
-  this.current.push(new docx.CheckBox({ checked: token.checked }));
+  const current = this.getCurrent();
+  current.push(new docx.CheckBox({ checked: token.checked }));
+  this.setCurrent(current);
   this.updateStyle({ prefix: " " });
 }
 

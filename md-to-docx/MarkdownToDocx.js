@@ -2,7 +2,14 @@ const marked = require("marked");
 const he = require("he");
 
 // helpers
-const { DEFAULT_STYLE, pushStyle, popStyle, updateStyle, setTextStyle } = require("./helpers/styles");
+const {
+  getDefaultStyle,
+  getHeadingMap,
+  pushStyle,
+  popStyle,
+  updateStyle,
+  setTextStyle,
+} = require("./helpers/styles");
 const { writeText } = require("./helpers/text");
 const { horizontalLine, breakLine } = require("./helpers/lines");
 const { groupParagraph  } = require("./helpers/paragraph");
@@ -20,14 +27,14 @@ const { DFS } = require("./processors/dfs");
 
 
 class MarkdownToDocx {
-  // style parameter is optional, overrides default style (see DEFAULT_STYLE)
+  // style parameter is optional, overrides default style
   constructor(style = {}) {
     // list of paragraphs to be returned at the end
-    this.paragraphs = [];
+    this.setParagraphs([]);
     // current paragraph being processed (array of text runs)
-    this.current = [];
+    this.setCurrent([]);
     // current style (initially default, updated as we traverse the tree)
-    this.style = { ...DEFAULT_STYLE };
+    this.style = getDefaultStyle();
     // stack to keep track of styles as we traverse the tree (push on entry, pop on exit)
     this.styleStack = [];
 
@@ -55,8 +62,64 @@ class MarkdownToDocx {
     this.processChild = processChild.bind(this);
     this.DFS = DFS.bind(this);
 
-    // apply initial style (computes indentSize)
+    // apply initial style overrides
     this.updateStyle(style);
+  }
+
+  getDefaultStyle() {
+    return getDefaultStyle();
+  }
+
+  getHeadingMap() {
+    return getHeadingMap();
+  }
+
+  getCurrent() {
+    return this.current;
+  }
+
+  setCurrent(current) {
+    if (!Array.isArray(current)) {
+      throw new Error("current must be an array");
+    }
+    this.current = current;
+    return this.current;
+  }
+
+  getParagraphs() {
+    return this.paragraphs;
+  }
+
+  setParagraphs(paragraphs) {
+    if (!Array.isArray(paragraphs)) {
+      throw new Error("paragraphs must be an array");
+    }
+    this.paragraphs = paragraphs;
+    return this.paragraphs;
+  }
+
+  getStyle() {
+    return this.style;
+  }
+
+  setStyle(style) {
+    if (!style || typeof style !== "object" || Array.isArray(style)) {
+      throw new Error("style must be an object");
+    }
+    this.style = style;
+    return this.style;
+  }
+
+  getStyleStack() {
+    return this.styleStack;
+  }
+
+  setStyleStack(styleStack) {
+    if (!Array.isArray(styleStack)) {
+      throw new Error("styleStack must be an array");
+    }
+    this.styleStack = styleStack;
+    return this.styleStack;
   }
 
   convert(text) {
@@ -74,7 +137,7 @@ class MarkdownToDocx {
     // group any trailing text runs into a paragraph
     this.groupParagraph();
     // return the list of paragraphs
-    return this.paragraphs;
+    return this.getParagraphs();
   }
 }
 

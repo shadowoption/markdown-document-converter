@@ -1,9 +1,10 @@
-const { HEADING_MAP } = require("../helpers/styles");
+const { getHeadingMap } = require("../helpers/styles");
 
 function writeHeading(token) {
+  const headingMap = getHeadingMap();
   this.groupParagraph();
   this.updateStyle({
-    headingLevel: HEADING_MAP[token.depth] || null,
+    headingLevel: headingMap[token.depth] || null,
     bold: true,
   });
   this.DFS(token.tokens);
