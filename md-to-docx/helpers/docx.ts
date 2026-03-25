@@ -1,7 +1,7 @@
-const path = require("path");
+import path from "node:path";
 
-function resolveDocx() {
-  const lookupPaths = [];
+function resolveDocx(): typeof import("docx") {
+  const lookupPaths: string[] = [];
 
   if (typeof process !== "undefined" && typeof process.cwd === "function") {
     lookupPaths.push(process.cwd());
@@ -11,10 +11,12 @@ function resolveDocx() {
 
   try {
     const resolved = require.resolve("docx", { paths: lookupPaths });
-    return require(resolved);
+    return require(resolved) as typeof import("docx");
   } catch (error) {
-    return require("docx");
+    return require("docx") as typeof import("docx");
   }
 }
 
-module.exports = resolveDocx();
+const docx = resolveDocx();
+
+export = docx;

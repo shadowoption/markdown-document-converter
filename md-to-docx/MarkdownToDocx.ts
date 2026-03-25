@@ -1,38 +1,79 @@
 const marked = require("marked");
 const he = require("he");
 
-// helpers
-const {
+import {
   getDefaultStyle,
   getHeadingMap,
   pushStyle,
   popStyle,
   updateStyle,
   setTextStyle,
-} = require("./helpers/styles");
-const { writeText } = require("./helpers/text");
-const { horizontalLine, lineBreak } = require("./helpers/lines");
-const { groupParagraph } = require("./helpers/paragraph");
-const { processTable } = require("./helpers/table");
-const { writeLink } = require("./helpers/link");
-const { writeCheckBox, writeList, writeListItem } = require("./helpers/list");
-const { writeCode, writeCodeSpan } = require("./helpers/code");
-const { writeBlockquote } = require("./helpers/blockquote");
-const { writeHeading } = require("./helpers/heading");
+} from "./helpers/styles";
+import { writeText } from "./helpers/text";
+import { horizontalLine, lineBreak } from "./helpers/lines";
+import { groupParagraph } from "./helpers/paragraph";
+import { processTable } from "./helpers/table";
+import { writeLink } from "./helpers/link";
+import { writeCheckBox, writeList, writeListItem } from "./helpers/list";
+import { writeCode, writeCodeSpan } from "./helpers/code";
+import { writeBlockquote } from "./helpers/blockquote";
+import { writeHeading } from "./helpers/heading";
 
-// processors
-const { processParent } = require("./processors/parent");
-const { processChild } = require("./processors/child");
-const { DFS } = require("./processors/dfs");
+import { processParent } from "./processors/parent";
+import { processChild } from "./processors/child";
+import { DFS } from "./processors/dfs";
 
+import type {
+  DocxBlock,
+  DocxHeadingLevel,
+  DocxParagraphChild,
+  MarkdownBlockquoteToken,
+  MarkdownCheckboxToken,
+  MarkdownCodeSpanToken,
+  MarkdownCodeToken,
+  MarkdownHeadingToken,
+  MarkdownLinkToken,
+  MarkdownListItemToken,
+  MarkdownListToken,
+  MarkdownStyle,
+  MarkdownTableToken,
+  MarkdownToken,
+  MarkdownTokensList,
+} from "./types";
 
-class MarkdownToDocx {
+export class MarkdownToDocx {
+  private currentTextRuns: DocxParagraphChild[];
+  private paragraphs: DocxBlock[];
+  public style: MarkdownStyle;
+  public styleStack: MarkdownStyle[];
+
+  public pushStyle: () => void;
+  public popStyle: () => void;
+  public updateStyle: (partial?: Partial<MarkdownStyle>) => void;
+  public setTextStyle: (type: string) => void;
+  public writeText: (text: string) => void;
+  public lineBreak: () => void;
+  public groupParagraph: () => void;
+  public horizontalLine: () => void;
+  public processTable: (token: MarkdownTableToken) => void;
+  public writeLink: (token: MarkdownLinkToken) => void;
+  public writeCheckBox: (token: MarkdownCheckboxToken) => void;
+  public writeList: (token: MarkdownListToken) => void;
+  public writeListItem: (token: MarkdownListItemToken) => void;
+  public writeCode: (token: MarkdownCodeToken) => void;
+  public writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
+  public writeBlockquote: (token: MarkdownBlockquoteToken) => void;
+  public writeHeading: (token: MarkdownHeadingToken) => void;
+  public processParent: (token: MarkdownToken) => void;
+  public processChild: (token: MarkdownToken) => void;
+  public DFS: (tokens: MarkdownToken[]) => void;
+
   // style parameter is optional, overrides default style
-  constructor(style = {}) {
-    // list of paragraphs to be returned at the end
-    this.setParagraphs([]);
+  constructor(style: Partial<MarkdownStyle> = {}) {
     // current text runs being processed for a paragraph
-    this.setCurrentTextRuns([]);
+    this.currentTextRuns = [];
+    // list of paragraphs to be returned at the end
+    this.paragraphs = [];
     // current style (initially default, updated as we traverse the tree)
     this.style = getDefaultStyle();
     // stack to keep track of styles as we traverse the tree (push on entry, pop on exit)
@@ -66,19 +107,19 @@ class MarkdownToDocx {
     this.updateStyle(style);
   }
 
-  getDefaultStyle() {
+  getDefaultStyle(): MarkdownStyle {
     return getDefaultStyle();
   }
 
-  getHeadingMap() {
+  getHeadingMap(): Array<DocxHeadingLevel | null> {
     return getHeadingMap();
   }
 
-  getCurrentTextRuns() {
+  getCurrentTextRuns(): DocxParagraphChild[] {
     return this.currentTextRuns;
   }
 
-  setCurrentTextRuns(currentTextRuns) {
+  setCurrentTextRuns(currentTextRuns: DocxParagraphChild[]): DocxParagraphChild[] {
     if (!Array.isArray(currentTextRuns)) {
       throw new Error("currentTextRuns must be an array");
     }
@@ -86,11 +127,11 @@ class MarkdownToDocx {
     return this.currentTextRuns;
   }
 
-  getParagraphs() {
+  getParagraphs(): DocxBlock[] {
     return this.paragraphs;
   }
 
-  setParagraphs(paragraphs) {
+  setParagraphs(paragraphs: DocxBlock[]): DocxBlock[] {
     if (!Array.isArray(paragraphs)) {
       throw new Error("paragraphs must be an array");
     }
@@ -98,11 +139,11 @@ class MarkdownToDocx {
     return this.paragraphs;
   }
 
-  getStyle() {
+  getStyle(): MarkdownStyle {
     return this.style;
   }
 
-  setStyle(style) {
+  setStyle(style: MarkdownStyle): MarkdownStyle {
     if (!style || typeof style !== "object" || Array.isArray(style)) {
       throw new Error("style must be an object");
     }
@@ -110,11 +151,11 @@ class MarkdownToDocx {
     return this.style;
   }
 
-  getStyleStack() {
+  getStyleStack(): MarkdownStyle[] {
     return this.styleStack;
   }
 
-  setStyleStack(styleStack) {
+  setStyleStack(styleStack: MarkdownStyle[]): MarkdownStyle[] {
     if (!Array.isArray(styleStack)) {
       throw new Error("styleStack must be an array");
     }
@@ -122,7 +163,7 @@ class MarkdownToDocx {
     return this.styleStack;
   }
 
-  convert(text) {
+  convert(text: string): DocxBlock[] {
     // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
     /*
     const exampleTokens = [
@@ -183,12 +224,16 @@ class MarkdownToDocx {
       },
     ]
       */
-    const tokens = marked.lexer(text, { gfm: true, breaks: true });
+    const tokens: MarkdownTokensList = marked.lexer(text, { gfm: true, breaks: true });
 
     // decode HTML text and split code lines
-    marked.walkTokens(tokens, (token) => {
-      if (token.text) token.text = he.decode(token.text);
-      if (token.type === "code") token.lines = token.text.split("\n");
+    marked.walkTokens(tokens, (token: MarkdownToken) => {
+      if ("text" in token && typeof token.text === "string") {
+        token.text = he.decode(token.text);
+      }
+      if (token.type === "code" && "text" in token && typeof token.text === "string") {
+        (token as MarkdownCodeToken).lines = token.text.split("\n");
+      }
     });
 
     // traverse the token tree and build paragraphs
@@ -199,5 +244,3 @@ class MarkdownToDocx {
     return this.getParagraphs();
   }
 }
-
-module.exports = { MarkdownToDocx };

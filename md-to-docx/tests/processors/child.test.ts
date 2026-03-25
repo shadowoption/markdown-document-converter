@@ -124,6 +124,13 @@ describe("child.js processors", () => {
       expect(mockContext.writeText).toHaveBeenCalledWith("fallback_text");
     });
 
+    it("should fallback to empty string when token has no text", () => {
+      const token = { type: "unknown" };
+      processChild.call(mockContext, token);
+
+      expect(mockContext.writeText).toHaveBeenCalledWith("");
+    });
+
     it("should handle hr with all required calls in correct order", () => {
       const token = { type: "hr" };
       const callOrder = [];

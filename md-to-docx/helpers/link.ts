@@ -1,26 +1,29 @@
-const docx = require("./docx");
+import docx = require("./docx");
+import type { MarkdownLinkToken, MarkdownToDocxContext } from "../types";
 
-function writeLink(token) {
+export function writeLink(this: MarkdownToDocxContext, token: MarkdownLinkToken): void {
   const currentTextRuns = this.getCurrentTextRuns();
   // save the current state of the document and start a new one for the link
   const state = currentTextRuns.slice();
   this.setCurrentTextRuns([]);
 
-  this.updateStyle({ link: token.href, textColor: this.style.linkColor });
+  const href = String(token.href || "");
+  this.updateStyle({ link: href, textColor: this.style.linkColor });
 
   // traverse child tokens to build the link text
   if (token.tokens) {
     this.DFS(token.tokens);
   }
+
   // write title if it exists
   if (token.title) {
-    this.writeText(` (${token.title})`);
+    this.writeText(` (${String(token.title)})`);
   }
 
   const linkChildren = this.getCurrentTextRuns();
   const link = new docx.ExternalHyperlink({
-    children: linkChildren,
-    link: token.href,
+    children: linkChildren as any,
+    link: href,
   });
 
   // restore the previous state of the document and add the link
@@ -28,5 +31,3 @@ function writeLink(token) {
   restored.push(link);
   this.setCurrentTextRuns(restored);
 }
-
-module.exports = { writeLink };

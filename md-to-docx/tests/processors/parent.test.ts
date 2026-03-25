@@ -143,6 +143,29 @@ describe("parent.js processors", () => {
       expect(mockContext.DFS).toHaveBeenCalledWith(nestedTokens);
     });
 
+    it("should use empty token list for del when tokens are missing", () => {
+      const token = { type: "del" };
+      processParent.call(mockContext, token);
+
+      expect(mockContext.setTextStyle).toHaveBeenCalledWith("del");
+      expect(mockContext.DFS).toHaveBeenCalledWith([]);
+    });
+
+    it("should use empty token list for paragraph when tokens are missing", () => {
+      const token = { type: "paragraph" };
+      processParent.call(mockContext, token);
+
+      expect(mockContext.DFS).toHaveBeenCalledWith([]);
+      expect(mockContext.groupParagraph).toHaveBeenCalled();
+    });
+
+    it("should use empty token list for text when tokens are missing", () => {
+      const token = { type: "text" };
+      processParent.call(mockContext, token);
+
+      expect(mockContext.DFS).toHaveBeenCalledWith([]);
+    });
+
     it("should maintain style stack order", () => {
       const token = { type: "paragraph", tokens: [] };
       const callOrder = [];

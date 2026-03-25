@@ -1,112 +1,96 @@
 # Hunchly Markdown Converter
 
-A JavaScript library for converting Markdown text into multiple output formats. The initial focus is **Markdown → DOCX**, with a shared architecture designed to support additional renderers such as **Markdown → PDF**.
+`hunchly-markdown-converter` is a TypeScript library for converting Markdown into DOCX document children (`Paragraph` and `Table`) that can be passed directly into `docx` `Document` sections.
 
-The library exposes a **single, stable root-level API** while keeping format-specific logic modular and well-tested.
+## Current Status
 
-> **Note:** This is an actively developed library. While the core functionality is production-ready, real‑world usage may reveal additional edge cases. Feedback and bug reports are welcome.
+- Language: **TypeScript** (source in `.ts`, compiled to `dist/`)
+- Primary output: **Markdown → DOCX**
+- API surface: stable root export with `mdToDocx.convert(text, style?)`
+- Build strategy: **build-on-install** (`prepare` runs `npm run build`)
 
+## Installation
 
-## Overview
+### From npm
 
-`hunchly-markdown-converter` provides a complete Markdown processing pipeline that tokenizes input once and renders it into one or more output formats.
+Coming soon...
 
-Currently supported:
+### From GitHub main branch
 
-- ✅ Markdown → DOCX
-- ⏳ Markdown → PDF (planned / in progress)
-
-
-This module provides a complete pipeline for converting Markdown to DOCX format with support for:
-- Headings (H1-H6)
-- Text formatting (bold, italic, strikethrough)
-- Lists (ordered and unordered, including task lists)
-- Code blocks and inline code
-- Tables with alignment
-- Blockquotes
-- Links and images
-- Horizontal rules
-- HTML entity decoding
-- Custom styling
-
-## Project Structure
-
-```
-md-to-docx/
-├── README.md                    # This file
-├── index.js                     # Factory function (entry point)
-├── MarkdownToDocx.js            # Main converter class
-│
-├── helpers/                     # Helper functions for document building
-│   ├── code.js                  # Code block and inline code handling
-│   ├── link.js                  # Hyperlink and image handling
-│   ├── list.js                  # List and checkbox handling
-│   ├── table.js                 # Table processing and cell creation
-│   ├── heading.js               # Heading levels and formatting
-│   ├── lines.js                 # Line breaks and horizontal rules
-│   ├── styles.js                # Style management and constants
-│   ├── paragraph.js             # Paragraph grouping and formatting
-│   ├── blockquote.js            # Blockquote styling
-│   └── text.js                  # Text styling and formatting
-│
-├── processors/                  # Token processing pipeline
-│   ├── dfs.js                   # Depth-first search tree traversal
-│   ├── parent.js                # Processing tokens with children
-│   └── child.js                 # Processing leaf tokens
-│
-└── tests/                       # Jest test suite (292 tests)
-    ├── unit_tests/              # Jest tests for helper functions (196 tests)
-    ├── processors/              # Jest tests for processors (51 tests)
-    ├── MarkdownToDocx.test.js    # Jest tests for main class (25 tests)
-    └── index.test.js            # Jest tests for factory function (20 tests)
+```bash
+npm install github:shadowoption/hunchly-markdown-converter#main
 ```
 
-## Architecture
+When installing from GitHub, the package builds automatically via the `prepare` script.
 
-### Data Flow
+### Local development with `npm link`
 
+In this library repo:
+
+```bash
+npm install
+npm run build
+npm link
 ```
-Markdown Text
-     ↓
-[marked.lexer]  - Tokenizes markdown using marked library
-     ↓
-Token Array
-     ↓
-[marked.walkTokens]  - Walks tokens to preprocess (decode HTML, split code)
-     ↓
-Processed Tokens
-     ↓
-[DFS]  - Depth-first search traversal
-     ↓
-├─→ [processParent]  - Handles tokens with children (headings, paragraphs, etc.)
-│       ↓
-│   ├─→ [writeBlockquote]
-│   ├─→ [writeHeading]
-│   ├─→ [writeLink]
-│   ├─→ [writeListItem]
-│   └─→ [setTextStyle + DFS]
-│
-└─→ [processChild]  - Handles leaf tokens
-        ↓
-        ├─→ [writeCode / writeCodeSpan]
-        ├─→ [writeCheckBox]
-        ├─→ [writeList]
-        ├─→ [processTable]
-        ├─→ [horizontalLine]
-        └─→ [writeText]
-     ↓
-Style-aware Text Runs & Paragraphs
-     ↓
-[groupParagraph]  - Group text runs into styled paragraphs
-     ↓
-DOCX Paragraph[] / Table[]
+
+In your consuming project:
+
+```bash
+npm link hunchly-markdown-converter
+npm install docx
 ```
+
+For iterative local development, run this in the library repo while editing:
+
+```bash
+npm run build:watch
+```
+
+This keeps `dist/` updated so the linked consumer sees current changes.
+
+## API
+
+### Root export
+
+```ts
+const { mdToDocx } = require("hunchly-markdown-converter");
+```
+
+### Function signature
+
+```ts
+mdToDocx.convert(text: string, style?: Partial<MarkdownStyle>): DocxBlock[]
+```
+
+- `text`: markdown input
+- `style`: optional style overrides
+- returns: `DocxBlock[]` where `DocxBlock = Paragraph | Table`
+
+### `MarkdownStyle` fields
+
+All style fields are optional in `convert(..., style)` and merged over defaults.
+
+- `font: string`
+- `textColor: string`
+- `linkColor: string`
+- `blockColor: string`
+- `fontSize: number`
+- `indentLevel: number`
+- `headingLevel: DocxHeadingLevel | null`
+- `link: string | null`
+- `bold: boolean`
+- `italics: boolean`
+- `strike: boolean`
+- `code: boolean`
+- `quote: boolean`
+- `ordered: boolean`
+- `prefix?: string`
 
 ## Usage
 
-Pass a style object as the second parameter to `convert()`:
+### Convert markdown to docx children
 
-```javascript
+```js
 const { mdToDocx } = require("hunchly-markdown-converter");
 
 const markdown = `
@@ -116,94 +100,131 @@ This is **bold** and *italic* text.
 
 - Item 1
 - Item 2
-
-\`\`\`javascript
-const x = 5;
-\`\`\`
 `;
 
-const customStyle = {
+const children = mdToDocx.convert(markdown, {
   font: "Times New Roman",
   fontSize: 24,
-  textColor: "000000"
-};
-
-const paragraphs = mdToDocx.convert(markdown, customStyle);
+  textColor: "000000",
+});
 ```
 
-### Integration with docx library
+### Write a `.docx` file using `docx`
 
-```javascript
-const { Document, Packer } = require('docx');
+```js
+const { Document, Packer } = require("docx");
 const { mdToDocx } = require("hunchly-markdown-converter");
 
-const paragraphs = mdToDocx.convert(markdownText);
+const children = mdToDocx.convert("# Title\n\nBody text");
+const document = new Document({ sections: [{ children }] });
 
-const doc = new Document({ sections: [{ children: paragraphs }] });
-const filepath = 'output.docx';
-Packer.toFile(doc, filepath);
+Packer.toFile(document, "output.docx");
 ```
 
-## Features
+## Project Structure
 
-### Supported Markdown
+```text
+index.ts
+jest.config.ts
+tsconfig.json
+md-to-docx/
+  index.ts
+  MarkdownToDocx.ts
+  types.ts
+  helpers/
+    blockquote.ts
+    code.ts
+    docx.ts
+    heading.ts
+    lines.ts
+    link.ts
+    list.ts
+    paragraph.ts
+    styles.ts
+    table.ts
+    text.ts
+  processors/
+    child.ts
+    dfs.ts
+    parent.ts
+  tests/
+    ...all test files are .test.ts
+tests/
+  root-index.test.ts
+```
 
-| Feature | Example | Status |
-|---------|---------|--------|
-| Headings | `# H1, ## H2, ... ###### H6` | ✅ |
-| Bold | `**bold** or __bold__` | ✅ |
-| Italic | `*italic* or _italic_` | ✅ |
-| Strikethrough | `~~text~~` | ✅ |
-| Inline Code | `` `code` `` | ✅ |
-| Code Blocks | `` ```code``` `` | ✅ |
-| Lists | `- item` or `1. item` | ✅ |
-| Task Lists | `- [ ] unchecked` `- [x] checked` | ✅ |
-| Tables | `\| col \| col \|` | ✅ |
-| Blockquotes | `> quote` | ✅ |
-| Links | `[text](url)` | ✅ |
-| Images | `![alt](url)` | ✅ (as links) |
-| Horizontal Rules | `---` or `***` | ✅ |
-| HTML Entities | `&lt;` `&amp;` etc. | ✅ (decoded) |
+## Parsing and token model
 
-## Known Limitations
+- Markdown parsing uses `marked.lexer(...)`
+- Token traversal uses `marked.walkTokens(...)`
+- Internal token typing uses **official `marked` token types** (`Token`, `Tokens.*`)
 
-As a newly developed library, the following areas may need refinement through real-world usage:
+### Tokens not currently supported (or only partially supported)
 
-- **Complex Nested Structures** - Deeply nested formatting and lists may not render exactly as expected
-- **Custom Image Handling** - Images are currently converted to hyperlinks; direct image embedding is not yet supported
-- **HTML Content** - HTML tags in markdown are currently ignored
-- **Extended Attributes** - Markdown extensions like task priorities, custom containers, or strikethrough variants are not supported
-- **Page Break Control** - No explicit page break support
-- **Font Fallback** - Does not implement font fallback; specified fonts must be available on the system
+The converter explicitly handles a subset of standard `marked` tokens. The following token categories are currently not rendered as rich DOCX features:
+
+- `def` tokens (link definitions) are currently ignored.
+- Raw HTML tokens (`html` / tag-like html token output) are not rendered as rich content.
+- Extension/plugin tokens from extended markdown are not explicitly mapped yet.
+
+Examples of extended markdown features that are not currently implemented as dedicated handlers include:
+
+- footnotes
+- definition lists
+- admonitions/custom containers
+- math/LaTeX blocks
+- citations/references and other custom plugin token types
+
+Unknown token shapes may fall back to plain text behavior when possible.
+
+## Supported Markdown
+
+- Headings (`#` to `######`)
+- Bold / italic / strikethrough
+- Inline code and fenced code blocks
+- Ordered and unordered lists (including task list tokens)
+- Tables with alignment
+- Blockquotes
+- Links and images (images handled as links)
+- Horizontal rules
+- HTML entity decoding (`he`)
+
+## Build, Test, and Output
+
+### Scripts
+
+- `npm run build` → compile TypeScript to `dist/`
+- `npm run build:watch` → watch-mode compile
+- `npm run test` → run Jest with coverage
+
+### Package outputs
+
+- Runtime entry: `dist/index.js`
+- Type declarations: `dist/index.d.ts`
 
 ## Testing
 
-
-### Jest Test Suite Overview
-
-**Total:** 292 tests across 15 test files
-
-| Category | Tests | Files |
-|----------|-------|-------|
-| Helper Functions | 196 | 10 |
-| Processors | 51 | 3 |
-| Main Class | 25 | 1 |
-| Factory Function | 20 | 1 |
-
-### Running Jest Tests
-
-```bash
-# All md-to-docx tests
-cd md-to-docx
-npm run test
-```
+- Test framework: Jest + ts-jest
+- Test files: TypeScript (`*.test.ts`)
+- Current suite size: **308 tests**
 
 ## Dependencies
 
-- **docx** ^9.5.3 - DOCX document generation
-- **marked** ^17.0.4 - Markdown parsing and tokenization
-- **he** ^1.2.0 - HTML entity encoding/decoding
+- Runtime:
+  - `marked`
+  - `he`
+  - `docx` (peer dependency)
+- Dev:
+  - `typescript`
+  - `jest`
+  - `ts-jest`
+  - `ts-node`
+  - `@types/jest`
+  - `@types/node`
+  - `jszip`
 
-### Development Dependencies
+## Notes / Limitations
 
-- **jest** ^29.7.0 - Testing framework
+- Complex deeply nested markdown can still surface edge cases.
+- Raw HTML content is not rendered as rich DOCX HTML.
+- Images are currently routed through link handling rather than direct image embedding.

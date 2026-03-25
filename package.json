@@ -2,7 +2,8 @@
   "name": "hunchly-markdown-converter",
   "version": "1.0.0",
   "description": "Convert Markdown text to Microsoft Word (.docx) documents.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "Kais Jessa",
   "license": "MIT",
   "repository": {
@@ -14,8 +15,16 @@
   },
   "homepage": "https://github.com/shadowoption/hunchly-markdown-converter#readme",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json --watch",
+    "prepare": "npm run build",
     "test": "jest --coverage"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "he": "^1.2.0",
     "marked": "^17.0.4"
@@ -24,8 +33,13 @@
     "docx": "9.5.3"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.15.3",
     "docx": "9.5.3",
     "jest": "^29.7.0",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

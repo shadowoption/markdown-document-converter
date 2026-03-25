@@ -1,22 +1,25 @@
-const docx = require("./docx");
-const he = require("he");
+import docx = require("./docx");
+import he from "he";
+import type { DocxAlignment, MarkdownTableToken, MarkdownToDocxContext } from "../types";
+
+type CellInput = MarkdownTableToken["header"][number] | string | number | null | undefined;
 
 // normalize text to prevent issues with non-string values and to extract text from objects if needed
-function normalizeText(value) {
-  if(value === null || value === undefined) {
+function normalizeText(value: CellInput): string {
+  if (value === null || value === undefined) {
     return "";
   }
-  if(typeof value === "string") {
+  if (typeof value === "string") {
     return value;
   }
-  if(typeof value === "object" && typeof value.text === "string") {
+  if (typeof value === "object" && typeof value.text === "string") {
     return value.text;
   }
   return String(value);
 }
 
 // map markdown alignment to docx alignment
-function mapAlign(align) {
+function mapAlign(align?: MarkdownTableToken["align"][number]): DocxAlignment | undefined {
   switch (align) {
     case "left":
       return docx.AlignmentType.LEFT;
@@ -30,7 +33,12 @@ function mapAlign(align) {
 }
 
 // create a table cell with the given text, alignment, and header status
-function makeCell(self, text, align, isHeader) {
+function makeCell(
+  self: MarkdownToDocxContext,
+  text: CellInput,
+  align: DocxAlignment | undefined,
+  isHeader: boolean,
+): import("docx").TableCell {
   const normalized = normalizeText(text);
   const decoded = he.decode(normalized);
 
@@ -54,18 +62,19 @@ function makeCell(self, text, align, isHeader) {
 }
 
 // process a markdown table token and convert it to a docx table
-function processTable(token) {
+export function processTable(this: MarkdownToDocxContext, token: MarkdownTableToken): void {
   const paragraphs = this.getParagraphs();
-  const rows = [];
-  const headers = [];
+  const rows: import("docx").TableRow[] = [];
+  const headers: import("docx").TableCell[] = [];
+  const headerCells = token.header || [];
+  const alignments = token.align || [];
 
   // write table headers
-  for (let i = 0; i < token.header.length; i++) {
-    const h = token.header[i];
-    headers.push(
-      makeCell(this, h, mapAlign(token.align[i]), true),
-    );
+  for (let i = 0; i < headerCells.length; i++) {
+    const headerValue = headerCells[i];
+    headers.push(makeCell(this, headerValue, mapAlign(alignments[i]), true));
   }
+
   rows.push(
     new docx.TableRow({
       children: headers,
@@ -74,13 +83,11 @@ function processTable(token) {
   );
 
   // write table rows
-  for (const r of token.rows) {
-    const currentRow = [];
-    for (let i = 0; i < token.header.length; i++) {
-      const cell = r[i] || { text: "" };
-      currentRow.push(
-        makeCell(this, cell, mapAlign(token.align[i]), false),
-      );
+  for (const row of token.rows || []) {
+    const currentRow: import("docx").TableCell[] = [];
+    for (let i = 0; i < headerCells.length; i++) {
+      const cell = row[i] || { text: "", tokens: [], header: false, align: null };
+      currentRow.push(makeCell(this, cell, mapAlign(alignments[i]), false));
     }
     rows.push(
       new docx.TableRow({
@@ -98,5 +105,3 @@ function processTable(token) {
   paragraphs.push(table);
   this.setParagraphs(paragraphs);
 }
-
-module.exports = { processTable };
