@@ -43,8 +43,8 @@ describe("styles.js helpers", () => {
       expect(getDefaultStyle().blockColor).toBe("858585");
     });
 
-    it("should have empty prefix by default", () => {
-      expect(getDefaultStyle().prefix).toBe("");
+    it("should not include prefix in default style", () => {
+      expect(getDefaultStyle().prefix).toBeUndefined();
     });
 
     it("should have default font size of 22", () => {
