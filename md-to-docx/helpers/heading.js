@@ -9,7 +9,7 @@ function writeHeading(token) {
   });
   this.DFS(token.tokens);
   this.groupParagraph();
-  this.breakLine();
+  this.lineBreak();
 }
 
 module.exports = { writeHeading };

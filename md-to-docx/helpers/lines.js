@@ -18,17 +18,17 @@ function horizontalLine() {
   this.setParagraphs(paragraphs);
 }
 
-function breakLine() {
-  const current = this.getCurrent();
+function lineBreak() {
+  const currentTextRuns = this.getCurrentTextRuns();
   const options = {
     text: "",
     size: this.style.fontSize,
     break: 1,
   }
-  current.push(
+  currentTextRuns.push(
     new docx.TextRun(options),
   );
-  this.setCurrent(current);
+  this.setCurrentTextRuns(currentTextRuns);
 }
 
-module.exports = { horizontalLine, breakLine };
+module.exports = { horizontalLine, lineBreak };

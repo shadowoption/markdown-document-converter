@@ -6,7 +6,7 @@ function writeCode(token) {
   }
   for (const line of token.lines) {
     this.writeText(line);
-    this.breakLine();
+    this.lineBreak();
   }
   this.groupParagraph();
 }

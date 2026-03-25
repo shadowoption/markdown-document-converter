@@ -17,15 +17,15 @@ describe("link.js helpers", () => {
       }),
       DFS: jest.fn(),
       writeText: jest.fn(function(text) {
-        const current = this.getCurrent();
-        current.push(new docx.TextRun({ text }));
-        this.setCurrent(current);
+        const currentTextRuns = this.getCurrentTextRuns();
+        currentTextRuns.push(new docx.TextRun({ text }));
+        this.setCurrentTextRuns(currentTextRuns);
       }),
-      getCurrent() {
+      getCurrentTextRuns() {
         return this._current;
       },
-      setCurrent(current) {
-        this._current = current;
+      setCurrentTextRuns(currentTextRuns) {
+        this._current = currentTextRuns;
       },
     };
   });
@@ -33,7 +33,7 @@ describe("link.js helpers", () => {
   describe("writeLink", () => {
     it("should save and restore the current state", () => {
       const initialElement = new docx.TextRun({ text: "existing" });
-      mockContext.setCurrent([initialElement]);
+      mockContext.setCurrentTextRuns([initialElement]);
 
       const token = {
         href: "https://example.com",
@@ -43,7 +43,7 @@ describe("link.js helpers", () => {
 
       writeLink.call(mockContext, token);
 
-      expect(mockContext.getCurrent()).toContain(initialElement);
+      expect(mockContext.getCurrentTextRuns()).toContain(initialElement);
     });
 
     it("should update style with link href and link color", () => {
@@ -132,7 +132,7 @@ describe("link.js helpers", () => {
 
       writeLink.call(mockContext, token);
 
-      const addedLink = mockContext.getCurrent()[mockContext.getCurrent().length - 1];
+      const addedLink = mockContext.getCurrentTextRuns()[mockContext.getCurrentTextRuns().length - 1];
       expect(addedLink instanceof docx.ExternalHyperlink).toBe(true);
     });
 
@@ -166,7 +166,7 @@ describe("link.js helpers", () => {
 
     it("should preserve existing current elements after link", () => {
       const before = new docx.TextRun({ text: "before" });
-      mockContext.setCurrent([before]);
+      mockContext.setCurrentTextRuns([before]);
 
       const token = {
         href: "https://example.com",
@@ -176,8 +176,8 @@ describe("link.js helpers", () => {
 
       writeLink.call(mockContext, token);
 
-      expect(mockContext.getCurrent()[0]).toBe(before);
-      expect(mockContext.getCurrent().length).toBeGreaterThan(1);
+      expect(mockContext.getCurrentTextRuns()[0]).toBe(before);
+      expect(mockContext.getCurrentTextRuns().length).toBeGreaterThan(1);
     });
   });
 });

@@ -7,7 +7,7 @@ describe("child.js processors", () => {
     mockContext = {
       pushStyle: jest.fn(),
       popStyle: jest.fn(),
-      breakLine: jest.fn(),
+      lineBreak: jest.fn(),
       groupParagraph: jest.fn(),
       horizontalLine: jest.fn(),
       writeText: jest.fn(),
@@ -33,7 +33,7 @@ describe("child.js processors", () => {
       const token = { type: "br" };
       processChild.call(mockContext, token);
 
-      expect(mockContext.breakLine).toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
     it("should handle checkbox type", () => {
@@ -70,7 +70,7 @@ describe("child.js processors", () => {
 
       expect(mockContext.groupParagraph).toHaveBeenCalled();
       expect(mockContext.horizontalLine).toHaveBeenCalled();
-      expect(mockContext.breakLine).toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
     it("should handle html type - not currently supported", () => {
@@ -98,7 +98,7 @@ describe("child.js processors", () => {
       const token = { type: "space" };
       processChild.call(mockContext, token);
 
-      expect(mockContext.breakLine).toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
     it("should handle table type", () => {
@@ -107,7 +107,7 @@ describe("child.js processors", () => {
 
       expect(mockContext.groupParagraph).toHaveBeenCalled();
       expect(mockContext.processTable).toHaveBeenCalledWith(token);
-      expect(mockContext.breakLine).toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
     it("should handle escape type - fallback to text", () => {
@@ -134,13 +134,13 @@ describe("child.js processors", () => {
       mockContext.horizontalLine.mockImplementation(() => {
         callOrder.push("horizontalLine");
       });
-      mockContext.breakLine.mockImplementation(() => {
-        callOrder.push("breakLine");
+      mockContext.lineBreak.mockImplementation(() => {
+        callOrder.push("lineBreak");
       });
 
       processChild.call(mockContext, token);
 
-      expect(callOrder).toEqual(["groupParagraph", "horizontalLine", "breakLine"]);
+      expect(callOrder).toEqual(["groupParagraph", "horizontalLine", "lineBreak"]);
     });
 
     it("should handle table with all required calls in correct order", () => {
@@ -153,13 +153,13 @@ describe("child.js processors", () => {
       mockContext.processTable.mockImplementation(() => {
         callOrder.push("processTable");
       });
-      mockContext.breakLine.mockImplementation(() => {
-        callOrder.push("breakLine");
+      mockContext.lineBreak.mockImplementation(() => {
+        callOrder.push("lineBreak");
       });
 
       processChild.call(mockContext, token);
 
-      expect(callOrder).toEqual(["groupParagraph", "processTable", "breakLine"]);
+      expect(callOrder).toEqual(["groupParagraph", "processTable", "lineBreak"]);
     });
 
     it("should handle checkbox with various states", () => {

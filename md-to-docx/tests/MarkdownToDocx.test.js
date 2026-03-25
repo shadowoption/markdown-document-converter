@@ -31,7 +31,7 @@ describe("MarkdownToDocx class", () => {
       const doc = new MarkdownToDocx();
 
       expect(doc.getParagraphs()).toEqual([]);
-      expect(doc.getCurrent()).toEqual([]);
+      expect(doc.getCurrentTextRuns()).toEqual([]);
       expect(doc.styleStack).toEqual([]);
       expect(doc.style.font).toBe("Arial");
       expect(doc.style.fontSize).toBe(22);
@@ -59,7 +59,7 @@ describe("MarkdownToDocx class", () => {
       expect(typeof doc.updateStyle).toBe("function");
       expect(typeof doc.setTextStyle).toBe("function");
       expect(typeof doc.writeText).toBe("function");
-      expect(typeof doc.breakLine).toBe("function");
+      expect(typeof doc.lineBreak).toBe("function");
       expect(typeof doc.groupParagraph).toBe("function");
       expect(typeof doc.horizontalLine).toBe("function");
       expect(typeof doc.processTable).toBe("function");
@@ -93,9 +93,9 @@ describe("MarkdownToDocx class", () => {
       const doc = new MarkdownToDocx();
       const value = [{ text: "x" }];
 
-      doc.setCurrent(value);
+      doc.setCurrentTextRuns(value);
 
-      expect(doc.getCurrent()).toBe(value);
+      expect(doc.getCurrentTextRuns()).toBe(value);
     });
 
     it("should get and set paragraphs", () => {
@@ -128,7 +128,7 @@ describe("MarkdownToDocx class", () => {
     it("should throw for invalid current", () => {
       const doc = new MarkdownToDocx();
 
-      expect(() => doc.setCurrent({})).toThrow("current must be an array");
+      expect(() => doc.setCurrentTextRuns({})).toThrow("currentTextRuns must be an array");
     });
 
     it("should throw for invalid paragraphs", () => {
@@ -345,7 +345,7 @@ describe("MarkdownToDocx class", () => {
 
       doc.convert("test");
 
-      expect(doc.getCurrent().length).toBe(0);
+      expect(doc.getCurrentTextRuns().length).toBe(0);
     });
 
     it("should handle multiple conversions", () => {

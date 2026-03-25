@@ -19,11 +19,11 @@ describe("paragraph.js helpers", () => {
         blockColor: "858585",
         fontSize: 22,
       },
-      getCurrent() {
+      getCurrentTextRuns() {
         return this._current;
       },
-      setCurrent(current) {
-        this._current = current;
+      setCurrentTextRuns(currentTextRuns) {
+        this._current = currentTextRuns;
       },
       getParagraphs() {
         return this._paragraphs;
@@ -55,7 +55,7 @@ describe("paragraph.js helpers", () => {
     });
 
     it("should add paragraph to paragraphs array", () => {
-      mockContext.setCurrent([makeRun("text")]);
+      mockContext.setCurrentTextRuns([makeRun("text")]);
       groupParagraph.call(mockContext);
       expect(mockContext.getParagraphs().length).toBe(1);
       expect(getParagraph() instanceof docx.Paragraph).toBe(true);
@@ -63,21 +63,21 @@ describe("paragraph.js helpers", () => {
 
     it("should create paragraph with current children", () => {
       const textRun = makeRun("example");
-      mockContext.setCurrent([textRun]);
+      mockContext.setCurrentTextRuns([textRun]);
       groupParagraph.call(mockContext);
       expect(getParagraph().children).toContain(textRun);
     });
 
     it("should set heading if headingLevel is present", () => {
       mockContext.style.headingLevel = docx.HeadingLevel.HEADING_1;
-      mockContext.setCurrent([makeRun("heading")]);
+      mockContext.setCurrentTextRuns([makeRun("heading")]);
       groupParagraph.call(mockContext);
       expect(getParagraph().heading).toBe(docx.HeadingLevel.HEADING_1);
     });
 
     it("should add left border for quote", () => {
       mockContext.style.quote = true;
-      mockContext.setCurrent([makeRun("quote")]);
+      mockContext.setCurrentTextRuns([makeRun("quote")]);
       groupParagraph.call(mockContext);
       expect(getParagraph().border.left).toBeDefined();
       expect(getParagraph().border.right).toBeUndefined();
@@ -85,7 +85,7 @@ describe("paragraph.js helpers", () => {
 
     it("should set quote border properties", () => {
       mockContext.style.quote = true;
-      mockContext.setCurrent([makeRun("quote")]);
+      mockContext.setCurrentTextRuns([makeRun("quote")]);
       groupParagraph.call(mockContext);
       const border = getParagraph().border.left;
       expect(border.space).toBe(4);
@@ -95,7 +95,7 @@ describe("paragraph.js helpers", () => {
 
     it("should add all borders for code block", () => {
       mockContext.style.code = true;
-      mockContext.setCurrent([makeRun("code")]);
+      mockContext.setCurrentTextRuns([makeRun("code")]);
       groupParagraph.call(mockContext);
       const border = getParagraph().border;
       expect(border.left).toBeDefined();
@@ -106,30 +106,30 @@ describe("paragraph.js helpers", () => {
 
     it("should add indent for non-zero indentLevel", () => {
       mockContext.style.indentLevel = 2;
-      mockContext.setCurrent([makeRun("indented")]);
+      mockContext.setCurrentTextRuns([makeRun("indented")]);
       groupParagraph.call(mockContext);
       expect(getParagraph().indent.left).toBe(440);
     });
 
     it("should clear current array after adding paragraph", () => {
-      mockContext.setCurrent([makeRun("text")]);
+      mockContext.setCurrentTextRuns([makeRun("text")]);
       groupParagraph.call(mockContext);
-      expect(mockContext.getCurrent().length).toBe(0);
+      expect(mockContext.getCurrentTextRuns().length).toBe(0);
     });
 
     it("should handle heading and indent together", () => {
       mockContext.style.headingLevel = docx.HeadingLevel.HEADING_2;
       mockContext.style.indentLevel = 1;
-      mockContext.setCurrent([makeRun("heading")]);
+      mockContext.setCurrentTextRuns([makeRun("heading")]);
       groupParagraph.call(mockContext);
       expect(getParagraph().heading).toBe(docx.HeadingLevel.HEADING_2);
       expect(getParagraph().indent.left).toBe(220);
     });
 
     it("should add multiple paragraphs sequentially", () => {
-      mockContext.setCurrent([makeRun("para1")]);
+      mockContext.setCurrentTextRuns([makeRun("para1")]);
       groupParagraph.call(mockContext);
-      mockContext.setCurrent([makeRun("para2")]);
+      mockContext.setCurrentTextRuns([makeRun("para2")]);
       groupParagraph.call(mockContext);
       expect(mockContext.getParagraphs().length).toBe(2);
     });

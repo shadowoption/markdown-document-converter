@@ -11,7 +11,7 @@ const {
   setTextStyle,
 } = require("./helpers/styles");
 const { writeText } = require("./helpers/text");
-const { horizontalLine, breakLine } = require("./helpers/lines");
+const { horizontalLine, lineBreak } = require("./helpers/lines");
 const { groupParagraph  } = require("./helpers/paragraph");
 const { processTable } = require("./helpers/table");
 const { writeLink } = require("./helpers/link");
@@ -31,8 +31,8 @@ class MarkdownToDocx {
   constructor(style = {}) {
     // list of paragraphs to be returned at the end
     this.setParagraphs([]);
-    // current paragraph being processed (array of text runs)
-    this.setCurrent([]);
+    // current text runs being processed for a paragraph
+    this.setCurrentTextRuns([]);
     // current style (initially default, updated as we traverse the tree)
     this.style = getDefaultStyle();
     // stack to keep track of styles as we traverse the tree (push on entry, pop on exit)
@@ -44,7 +44,7 @@ class MarkdownToDocx {
     this.updateStyle = updateStyle.bind(this);
     this.setTextStyle = setTextStyle.bind(this);
     this.writeText = writeText.bind(this);
-    this.breakLine = breakLine.bind(this);
+    this.lineBreak = lineBreak.bind(this);
     this.groupParagraph = groupParagraph.bind(this);
     this.horizontalLine = horizontalLine.bind(this);
     this.processTable = processTable.bind(this);
@@ -74,16 +74,16 @@ class MarkdownToDocx {
     return getHeadingMap();
   }
 
-  getCurrent() {
-    return this.current;
+  getCurrentTextRuns() {
+    return this.currentTextRuns;
   }
 
-  setCurrent(current) {
-    if (!Array.isArray(current)) {
-      throw new Error("current must be an array");
+  setCurrentTextRuns(currentTextRuns) {
+    if (!Array.isArray(currentTextRuns)) {
+      throw new Error("currentTextRuns must be an array");
     }
-    this.current = current;
-    return this.current;
+    this.currentTextRuns = currentTextRuns;
+    return this.currentTextRuns;
   }
 
   getParagraphs() {

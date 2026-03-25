@@ -18,20 +18,20 @@ describe("list.js helpers", () => {
       }),
       DFS: jest.fn(),
       writeText: jest.fn(function(text) {
-        const current = this.getCurrent();
-        current.push(new docx.TextRun({ text }));
-        this.setCurrent(current);
+        const currentTextRuns = this.getCurrentTextRuns();
+        currentTextRuns.push(new docx.TextRun({ text }));
+        this.setCurrentTextRuns(currentTextRuns);
       }),
-      breakLine: jest.fn(function() {
-        const current = this.getCurrent();
-        current.push(new docx.TextRun({ break: 1 }));
-        this.setCurrent(current);
+      lineBreak: jest.fn(function() {
+        const currentTextRuns = this.getCurrentTextRuns();
+        currentTextRuns.push(new docx.TextRun({ break: 1 }));
+        this.setCurrentTextRuns(currentTextRuns);
       }),
-      getCurrent() {
+      getCurrentTextRuns() {
         return this._current;
       },
-      setCurrent(current) {
-        this._current = current;
+      setCurrentTextRuns(currentTextRuns) {
+        this._current = currentTextRuns;
       },
     };
   });
@@ -41,16 +41,16 @@ describe("list.js helpers", () => {
       const token = { checked: true };
       writeCheckBox.call(mockContext, token);
 
-      expect(mockContext.getCurrent().length).toBe(1);
-      expect(mockContext.getCurrent()[0] instanceof docx.CheckBox).toBe(true);
+      expect(mockContext.getCurrentTextRuns().length).toBe(1);
+      expect(mockContext.getCurrentTextRuns()[0] instanceof docx.CheckBox).toBe(true);
     });
 
     it("should handle unchecked checkbox", () => {
       const token = { checked: false };
       writeCheckBox.call(mockContext, token);
 
-      expect(mockContext.getCurrent().length).toBe(1);
-      expect(mockContext.getCurrent()[0] instanceof docx.CheckBox).toBe(true);
+      expect(mockContext.getCurrentTextRuns().length).toBe(1);
+      expect(mockContext.getCurrentTextRuns()[0] instanceof docx.CheckBox).toBe(true);
     });
 
     it("should update style with space prefix after checkbox", () => {
@@ -197,14 +197,14 @@ describe("list.js helpers", () => {
       const token = { loose: false, task: false, tokens: [] };
       writeListItem.call(mockContext, token);
 
-      expect(mockContext.breakLine).not.toHaveBeenCalled();
+      expect(mockContext.lineBreak).not.toHaveBeenCalled();
     });
 
     it("should break line for loose items", () => {
       const token = { loose: true, task: false, tokens: [] };
       writeListItem.call(mockContext, token);
 
-      expect(mockContext.breakLine).toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
     it("should write checkbox for task list items", () => {

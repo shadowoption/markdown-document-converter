@@ -2,9 +2,9 @@ function processChild(token) {
   // save current style on stack
   this.pushStyle();
   switch (token.type) {
-    // breakline
+    // line break
     case "br":
-      this.breakLine();
+      this.lineBreak();
       break;
 
     // checkbox
@@ -30,7 +30,7 @@ function processChild(token) {
     case "hr":
       this.groupParagraph();
       this.horizontalLine();
-      this.breakLine();
+      this.lineBreak();
       break;
 
     // currently not handling HTML tags
@@ -49,14 +49,14 @@ function processChild(token) {
 
     // space
     case "space":
-      this.breakLine();
+      this.lineBreak();
       break;
 
     // table
     case "table":
       this.groupParagraph();
       this.processTable(token);
-      this.breakLine();
+      this.lineBreak();
       break;
 
     // escaped text and text

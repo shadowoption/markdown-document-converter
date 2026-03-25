@@ -1,9 +1,9 @@
 const docx = require("./docx");
 
 function writeCheckBox(token) {
-  const current = this.getCurrent();
-  current.push(new docx.CheckBox({ checked: token.checked }));
-  this.setCurrent(current);
+  const currentTextRuns = this.getCurrentTextRuns();
+  currentTextRuns.push(new docx.CheckBox({ checked: token.checked }));
+  this.setCurrentTextRuns(currentTextRuns);
   this.updateStyle({ prefix: " " });
 }
 
@@ -28,7 +28,7 @@ function writeList(token) {
 
 function writeListItem(token) {
   if (token.loose) {
-    this.breakLine();
+    this.lineBreak();
   }
   if (token.task) {
     this.writeCheckBox(token);

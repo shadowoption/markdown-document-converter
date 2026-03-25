@@ -1,7 +1,7 @@
 const docx = require("./docx");
 
 function writeText(text) {
-  const current = this.getCurrent();
+  const currentTextRuns = this.getCurrentTextRuns();
   const options = {
     text: text,
     font: this.style.font,
@@ -17,8 +17,8 @@ function writeText(text) {
     options.style = "Hyperlink";
   }
 
-  current.push(new docx.TextRun(options));
-  this.setCurrent(current);
+  currentTextRuns.push(new docx.TextRun(options));
+  this.setCurrentTextRuns(currentTextRuns);
 }
 
 module.exports = { writeText };

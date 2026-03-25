@@ -1,11 +1,11 @@
 const docx = require("./docx");
 
 function groupParagraph() {
-  const current = this.getCurrent();
-  if (current.length === 0) return;
+  const currentTextRuns = this.getCurrentTextRuns();
+  if (currentTextRuns.length === 0) return;
 
   const options = {
-    children: current,
+    children: currentTextRuns,
   };
 
   if (this.style.headingLevel) {
@@ -47,7 +47,7 @@ function groupParagraph() {
   const paragraphs = this.getParagraphs();
   paragraphs.push(new docx.Paragraph(options));
   this.setParagraphs(paragraphs);
-  this.setCurrent([]);
+  this.setCurrentTextRuns([]);
 }
 
 module.exports = { groupParagraph };
