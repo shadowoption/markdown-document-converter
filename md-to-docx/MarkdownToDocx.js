@@ -12,7 +12,7 @@ const {
 } = require("./helpers/styles");
 const { writeText } = require("./helpers/text");
 const { horizontalLine, lineBreak } = require("./helpers/lines");
-const { groupParagraph  } = require("./helpers/paragraph");
+const { groupParagraph } = require("./helpers/paragraph");
 const { processTable } = require("./helpers/table");
 const { writeLink } = require("./helpers/link");
 const { writeCheckBox, writeList, writeListItem } = require("./helpers/list");
@@ -124,6 +124,65 @@ class MarkdownToDocx {
 
   convert(text) {
     // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
+    /*
+    const exampleTokens = [
+      {
+        type: 'heading',
+        raw: '## Emphasis\n\n',
+        depth: 2,
+        text: 'Emphasis',
+        tokens: [
+          {
+            type: 'text',
+            raw: '## Emphasis\n\n',
+            text: 'Emphasis',
+            escaped: false
+          }
+        ]
+      },
+      {
+        type: 'paragraph',
+        raw: '**This is bold text**',
+        text: '**This is bold text**',
+        tokens: [
+          {
+            type: 'strong',
+            raw: '**This is bold text**',
+            text: 'This is bold text',
+            tokens: [
+              {
+                type: 'text',
+                raw: 'This is bold text',
+                text: 'This is bold text',
+                escaped: false
+              }
+            ]
+          }
+        ]
+      },
+      { type: 'space', raw: '\n\n' },
+      {
+        type: 'paragraph',
+        raw: '*This is italic text*',
+        text: '*This is italic text*',
+        tokens: [
+          {
+            type: 'em',
+            raw: '*This is italic text*',
+            text: 'This is italic text',
+            tokens: [
+              {
+                type: 'text',
+                raw: 'This is italic text',
+                text: 'This is italic text',
+                escaped: false
+              }
+            ]
+          }
+        ]
+      },
+    ]
+      */
     const tokens = marked.lexer(text, { gfm: true, breaks: true });
 
     // decode HTML text and split code lines

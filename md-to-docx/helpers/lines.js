@@ -11,7 +11,7 @@ function horizontalLine() {
         size: 6,
       },
     },
-  }
+  };
   paragraphs.push(
     new docx.Paragraph(options),
   );
@@ -24,7 +24,7 @@ function lineBreak() {
     text: "",
     size: this.style.fontSize,
     break: 1,
-  }
+  };
   currentTextRuns.push(
     new docx.TextRun(options),
   );
