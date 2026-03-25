@@ -158,6 +158,32 @@ describe("table.js helpers", () => {
       expect(getTable().rows[0].children[0].children[0].children[0].text).toBe("<script>");
     });
 
+    it("should normalize null header cell values to empty string", () => {
+      const token = { header: [null], align: [undefined], rows: [] };
+      processTable.call(mockContext, token);
+      expect(getTable().rows[0].children[0].children[0].children[0].text).toBe("");
+    });
+
+    it("should normalize non-object row cell values to string", () => {
+      const token = {
+        header: [{ text: "Col" }],
+        align: [undefined],
+        rows: [[42]],
+      };
+      processTable.call(mockContext, token);
+      expect(getTable().rows[1].children[0].children[0].children[0].text).toBe("42");
+    });
+
+    it("should normalize object cell values by reading their text property", () => {
+      const token = {
+        header: [{ text: "Col" }],
+        align: [undefined],
+        rows: [[{ text: "Value" }]],
+      };
+      processTable.call(mockContext, token);
+      expect(getTable().rows[1].children[0].children[0].children[0].text).toBe("Value");
+    });
+
     it("should handle missing cells in rows", () => {
       const token = {
         header: [{ text: "Col1" }, { text: "Col2" }, { text: "Col3" }],

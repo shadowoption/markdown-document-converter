@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/shadowoption/hunchly-markdown-converter#readme",
   "scripts": {
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "he": "^1.2.0",
