@@ -1,6 +1,6 @@
-# Hunchly Markdown Converter
+# Markdown Document Converter
 
-`hunchly-markdown-converter` is a TypeScript library for converting Markdown into DOCX document children (`Paragraph` and `Table`) that can be passed directly into `docx` `Document` sections.
+`markdown-document-converter` is a TypeScript library for converting Markdown into DOCX document children (`Paragraph` and `Table`) that can be passed directly into `docx` `Document` sections.
 
 ## Current Status
 
@@ -18,7 +18,7 @@ Coming soon...
 ### From GitHub main branch
 
 ```bash
-npm install github:shadowoption/hunchly-markdown-converter#main
+npm install github:shadowoption/markdown-document-converter#main
 ```
 
 When installing from GitHub, the package builds automatically via the `prepare` script.
@@ -36,7 +36,7 @@ npm link
 In your consuming project:
 
 ```bash
-npm link hunchly-markdown-converter
+npm link markdown-document-converter
 npm install docx
 ```
 
@@ -53,7 +53,7 @@ This keeps `dist/` updated so the linked consumer sees current changes.
 ### Root export
 
 ```ts
-const { mdToDocx } = require("hunchly-markdown-converter");
+const { mdToDocx } = require("markdown-document-converter");
 ```
 
 ### Function signature
@@ -91,7 +91,7 @@ All style fields are optional in `convert(..., style)` and merged over defaults.
 ### Convert markdown to docx children
 
 ```js
-const { mdToDocx } = require("hunchly-markdown-converter");
+const { mdToDocx } = require("markdown-document-converter");
 
 const markdown = `
 # Hello World
@@ -113,7 +113,7 @@ const children = mdToDocx.convert(markdown, {
 
 ```js
 const { Document, Packer } = require("docx");
-const { mdToDocx } = require("hunchly-markdown-converter");
+const { mdToDocx } = require("markdown-document-converter");
 
 const children = mdToDocx.convert("# Title\n\nBody text");
 const document = new Document({ sections: [{ children }] });
