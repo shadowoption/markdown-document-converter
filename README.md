@@ -237,7 +237,7 @@ md-to-pdf/
     dfs.ts
     parent.ts
   tests/
-    ...all test files are .test.js
+    ...all test files are .test.ts
 tests/
   root-index.test.ts
 ```
@@ -296,7 +296,7 @@ Both converters support:
 ## Testing
 
 - Test framework: Jest + ts-jest
-- Test files: mixed TypeScript and JavaScript (`*.test.ts`, `*.test.js`)
+- Test files: TypeScript (`*.test.ts`)
 - Current suite size: **375 tests**
 
 ## Dependencies
