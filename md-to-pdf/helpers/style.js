@@ -24,7 +24,7 @@ function getDefaultStyle(overrides = {}) {
     fontSize: 10,
     textColor: "#333333",
     linkColor: "#0000EE",
-    drawColor: "#000000",
+    drawColor: "#333333",
     lineSpc: 18,
     maxLineWidth: 500,
     pageHeight: 780,
@@ -53,6 +53,7 @@ function popStyle() {
 
   const style = styleStack.pop();
   this.setStyleStack(styleStack);
+  // currentHeight and currentWidth should not be overridden by popStyle, as they represent the current index in the file
   this.setStyle({
     ...style,
     currentWidth: current.currentWidth,

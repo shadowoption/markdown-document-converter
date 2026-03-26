@@ -1,6 +1,3 @@
-const marked = require("marked");
-const he = require("he");
-
 const {
   getDefaultStyle,
   pushStyle,
@@ -84,6 +81,9 @@ class MarkdownToPdf {
   }
 
   convert(doc, text) {
+    const marked = require("marked");
+    const he = require("he");
+
     this.setDoc(doc);
     this.setStyleStack([]);
     this.updateStyle({

@@ -14,13 +14,14 @@ const config: Config = {
   moduleFileExtensions: ["ts", "js", "json", "node"],
   coverageProvider: "v8",
   collectCoverageFrom: [
-    "**/*.ts",
+    "**/*.{ts,js}",
     "!**/node_modules/**",
     "!dist/**",
     "!coverage/**",
     "!**/tests/**",
     "!**/*.d.ts",
     "!**/types.ts",
+    "!**/jest.config.js",
     "!jest.config.ts",
   ],
 };
