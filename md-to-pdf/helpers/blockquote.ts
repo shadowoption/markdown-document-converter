@@ -1,4 +1,6 @@
-function writeBlockquote(token) {
+import type { MarkdownBlockquoteToken, MarkdownToPdfContext } from "../types";
+
+export function writeBlockquote(this: MarkdownToPdfContext, token: MarkdownBlockquoteToken): void {
   const doc = this.getDoc();
   const prev = this.getStyle();
 
@@ -29,7 +31,3 @@ function writeBlockquote(token) {
     currentHeight: current.currentHeight,
   });
 }
-
-module.exports = {
-  writeBlockquote,
-};

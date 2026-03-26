@@ -1,4 +1,6 @@
-function writeLink(token) {
+import type { MarkdownLinkToken, MarkdownToPdfContext } from "../types";
+
+export function writeLink(this: MarkdownToPdfContext, token: MarkdownLinkToken): void {
   const prev = this.getStyle();
   this.updateStyle({
     textColor: this.getStyle().linkColor,
@@ -20,7 +22,3 @@ function writeLink(token) {
     link: prev.link,
   });
 }
-
-module.exports = {
-  writeLink,
-};

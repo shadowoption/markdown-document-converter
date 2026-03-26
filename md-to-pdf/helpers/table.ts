@@ -1,11 +1,13 @@
 const { autoTable } = require("jspdf-autotable");
 
-function processTable(token) {
+import type { MarkdownTableToken, MarkdownToPdfContext } from "../types";
+
+export function processTable(this: MarkdownToPdfContext, token: MarkdownTableToken): void {
   const doc = this.getDoc();
   const style = this.getStyle();
-  const tableHeaders = token.header.map((header) => header.text);
-  const tableData = token.rows.map((row) => {
-    return tableHeaders.map((_, index) => ({
+  const tableHeaders = token.header.map((header: any) => header.text);
+  const tableData = token.rows.map((row: any[]) => {
+    return tableHeaders.map((_: string, index: number) => ({
       content: row[index].text,
       styles: {
         halign: token.align[index] || "center",
@@ -14,7 +16,7 @@ function processTable(token) {
   });
 
   this.lineBreak(style.lineDistance);
-  let nextStyle = { ...this.getStyle() };
+  const nextStyle = { ...this.getStyle() };
 
   autoTable(doc, {
     head: [tableHeaders],
@@ -23,7 +25,7 @@ function processTable(token) {
     tableWidth: nextStyle.maxLineWidth,
     pageBreak: "avoid",
     margin: nextStyle.currentWidth,
-    didDrawPage: (data) => {
+    didDrawPage: (data: any) => {
       nextStyle.currentHeight = data.cursor.y;
     },
   });
@@ -31,7 +33,3 @@ function processTable(token) {
   this.setStyle(nextStyle);
   this.lineBreak(nextStyle.lineDistance);
 }
-
-module.exports = {
-  processTable,
-};

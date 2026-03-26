@@ -15,14 +15,13 @@
   },
   "homepage": "https://github.com/shadowoption/markdown-document-converter#readme",
   "scripts": {
-    "build": "tsc -p tsconfig.json && rm -rf dist/md-to-pdf && cp -R md-to-pdf dist/md-to-pdf",
+    "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "prepare": "npm run build",
     "test": "jest --coverage"
   },
   "files": [
     "dist",
-    "md-to-pdf",
     "README.md",
     "LICENSE"
   ],

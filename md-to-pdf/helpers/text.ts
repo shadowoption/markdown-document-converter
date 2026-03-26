@@ -1,6 +1,10 @@
-const { checkHeight } = require("./style");
+import { checkHeight } from "./style";
+import type { MarkdownCheckboxToken, MarkdownListItemToken, MarkdownToPdfContext, PdfStyle } from "../types";
 
-function writePrefix(token) {
+export function writePrefix(
+  this: MarkdownToPdfContext,
+  token: MarkdownListItemToken | MarkdownCheckboxToken
+): PdfStyle {
   let style = this.getStyle();
 
   if (token.prefix) {
@@ -10,7 +14,7 @@ function writePrefix(token) {
   return style;
 }
 
-function writeText(text) {
+export function writeText(this: MarkdownToPdfContext, text: string): PdfStyle {
   text = String(text || "");
   const doc = this.getDoc();
   const lastStyle = this.getStyle();
@@ -53,8 +57,3 @@ function writeText(text) {
 
   return style;
 }
-
-module.exports = {
-  writePrefix,
-  writeText,
-};

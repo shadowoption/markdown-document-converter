@@ -1,4 +1,6 @@
-function writeHeading(token) {
+import type { MarkdownHeadingToken, MarkdownToPdfContext } from "../types";
+
+export function writeHeading(this: MarkdownToPdfContext, token: MarkdownHeadingToken): void {
   const prev = this.getStyle();
 
   this.updateStyle({
@@ -16,7 +18,3 @@ function writeHeading(token) {
     bold: prev.bold,
   });
 }
-
-module.exports = {
-  writeHeading,
-};

@@ -1,6 +1,7 @@
-const { checkHeight } = require("./style");
+import { checkHeight } from "./style";
+import type { JsPdfDoc, MarkdownToPdfContext, PdfStyle } from "../types";
 
-function breakLine(doc, distance, lastStyle) {
+export function breakLine(doc: JsPdfDoc, distance: number, lastStyle: PdfStyle): PdfStyle {
   const style = { ...lastStyle };
 
   style.currentHeight += distance;
@@ -10,12 +11,12 @@ function breakLine(doc, distance, lastStyle) {
   return style;
 }
 
-function lineBreak(distance) {
+export function lineBreak(this: MarkdownToPdfContext, distance: number): void {
   const style = breakLine(this.getDoc(), distance, this.getStyle());
   this.setStyle(style);
 }
 
-function horizontalLine() {
+export function horizontalLine(this: MarkdownToPdfContext): void {
   const doc = this.getDoc();
   const style = this.getStyle();
 
@@ -32,9 +33,3 @@ function horizontalLine() {
 
   this.lineBreak(current.lineSpc);
 }
-
-module.exports = {
-  breakLine,
-  lineBreak,
-  horizontalLine,
-};
