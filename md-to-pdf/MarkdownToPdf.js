@@ -1,3 +1,6 @@
+const marked = require("marked");
+const he = require("he");
+
 const {
   getDefaultStyle,
   pushStyle,
@@ -6,15 +9,14 @@ const {
   setTextStyle,
   setDocStyle,
 } = require("./helpers/style");
-const { lineBreak, horizontalLine } = require("./helpers/lines");
-const { writePrefix, writeText, writeToPDF } = require("./helpers/text");
+const { horizontalLine, lineBreak } = require("./helpers/lines");
+const { writePrefix, writeText } = require("./helpers/text");
 const { processTable } = require("./helpers/table");
 const { writeCheckBox, writeList, writeListItem } = require("./helpers/list");
 const { writeCode, writeCodeSpan } = require("./helpers/code");
 const { writeBlockquote } = require("./helpers/blockquote");
 const { writeHeading } = require("./helpers/heading");
 const { writeLink } = require("./helpers/link");
-const { parseMarkdownTokens } = require("./helpers/tokens");
 const { processParent } = require("./processors/parent");
 const { processChild } = require("./processors/child");
 const { DFS } = require("./processors/dfs");
@@ -34,7 +36,6 @@ class MarkdownToPdf {
     this.horizontalLine = horizontalLine.bind(this);
     this.writePrefix = writePrefix.bind(this);
     this.writeText = writeText.bind(this);
-    this.writeToPDF = writeToPDF.bind(this);
     this.processTable = processTable.bind(this);
     this.writeCheckBox = writeCheckBox.bind(this);
     this.writeList = writeList.bind(this);
@@ -89,7 +90,20 @@ class MarkdownToPdf {
       cursorIndex: this.getStyle().currentWidth,
     });
 
-    const tokens = parseMarkdownTokens(text);
+    // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
+    const tokens = marked.lexer(text, { gfm: true, breaks: true });
+
+    // decode HTML text and split code lines
+    marked.walkTokens(tokens, (token) => {
+      if ("text" in token && typeof token.text === "string") {
+        token.text = he.decode(token.text);
+      }
+      if (token.type === "code" && "text" in token && typeof token.text === "string") {
+        token.lines = token.text.split("\n");
+      }
+    });
+
+    // traverse the token tree and render to jsPDF
     this.DFS(tokens);
 
     return this.getStyle().currentHeight;

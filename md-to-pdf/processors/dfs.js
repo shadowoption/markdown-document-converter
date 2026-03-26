@@ -5,8 +5,10 @@ function hasChildren(token) {
 function DFS(tokens) {
   for (const token of tokens) {
     if (hasChildren(token)) {
+      // parent node
       this.processParent(token);
     } else {
+      // leaf/child node
       this.processChild(token);
     }
   }
