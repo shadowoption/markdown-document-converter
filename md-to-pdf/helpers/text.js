@@ -4,17 +4,14 @@ function writePrefix(token) {
   let style = this.getStyle();
 
   if (token.prefix) {
-    style = this.writeToPDF(String(token.prefix || ""));
+    style = this.writeText(String(token.prefix || ""));
   }
 
   return style;
 }
 
 function writeText(text) {
-  return this.writeToPDF(String(text || ""));
-}
-
-function writeToPDF(text) {
+  text = String(text || "");
   const doc = this.getDoc();
   const lastStyle = this.getStyle();
   const style = { ...lastStyle };
@@ -60,5 +57,4 @@ function writeToPDF(text) {
 module.exports = {
   writePrefix,
   writeText,
-  writeToPDF,
 };

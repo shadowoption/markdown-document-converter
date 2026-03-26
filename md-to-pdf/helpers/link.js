@@ -1,7 +1,7 @@
 function writeLink(token) {
   const prev = this.getStyle();
   this.updateStyle({
-    textColor: "#0000EE",
+    textColor: this.getStyle().linkColor,
     link: token.href || null,
   });
 

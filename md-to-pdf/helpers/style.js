@@ -12,6 +12,7 @@ try {
 
 function getDefaultStyle(overrides = {}) {
   return {
+    font: null,
     lineDistance: 10,
     startWidth: 60,
     startHeight: 70,
@@ -22,12 +23,13 @@ function getDefaultStyle(overrides = {}) {
     cursorIndex: 60,
     fontSize: 10,
     textColor: "#333333",
+    linkColor: "#0000EE",
     drawColor: "#000000",
     lineSpc: 18,
     maxLineWidth: 500,
     pageHeight: 780,
     bold: false,
-    italic: false,
+    italics: false,
     strike: false,
     code: false,
     link: null,
@@ -67,9 +69,18 @@ function popStyle() {
 }
 
 function updateStyle(partial = {}) {
+  const normalized = { ...partial };
+
+  if (Object.hasOwn(normalized, "italic") && !Object.hasOwn(normalized, "italics")) {
+    normalized.italics = normalized.italic;
+  }
+  if (Object.hasOwn(normalized, "italics") && !Object.hasOwn(normalized, "italic")) {
+    normalized.italic = normalized.italics;
+  }
+
   this.setStyle({
     ...this.getStyle(),
-    ...partial,
+    ...normalized,
   });
 }
 
@@ -79,7 +90,7 @@ function setTextStyle(type) {
       this.updateStyle({ bold: true });
       break;
     case "em":
-      this.updateStyle({ italic: true });
+      this.updateStyle({ italics: true });
       break;
     case "del":
       this.updateStyle({ strike: true, drawColor: this.getStyle().textColor });
@@ -99,18 +110,18 @@ function checkHeight(doc, style) {
 }
 
 function setDocStyle(doc, text, style) {
-  const font = style.code ? "courier" : jspdfFonts.chooseFontForText(text);
+  const font = style.code ? "courier" : style.font || jspdfFonts.chooseFontForText(text);
 
   doc.setFont(font);
   doc.setFontSize(style.fontSize);
   doc.setTextColor(style.textColor);
   doc.setDrawColor(style.drawColor);
 
-  if (style.bold && style.italic) {
+  if (style.bold && style.italics) {
     doc.setFont(font, "bolditalic");
   } else if (style.bold) {
     doc.setFont(font, "bold");
-  } else if (style.italic) {
+  } else if (style.italics) {
     doc.setFont(font, "italic");
   } else {
     doc.setFont(font, "normal");
