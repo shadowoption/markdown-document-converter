@@ -1,5 +1,5 @@
 const { writeBlockquote } = require("../../helpers/blockquote");
-const { getDefaultStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
 const { createMockDoc } = require("../test-utils/mockDoc");
 
 describe("md-to-pdf blockquote helper", () => {
@@ -7,15 +7,27 @@ describe("md-to-pdf blockquote helper", () => {
     const doc = createMockDoc();
     const context = {
       style: getDefaultStyle({ currentHeight: 70, currentWidth: 60, indent: 8, lineDistance: 10 }),
+      styleStack: [],
       getDoc() {
         return doc;
       },
       getStyle() {
         return this.style;
       },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
+      },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       lineBreak: jest.fn(function(distance) {
         this.style.currentHeight += distance;
       }),
@@ -29,22 +41,34 @@ describe("md-to-pdf blockquote helper", () => {
 
     expect(context.style.currentHeight).toBeGreaterThan(before);
     expect(doc.line).toHaveBeenCalled();
-    expect(context.style.currentWidth).toBe(60);
+    expect(context.style.currentWidth).toBe(68);
   });
 
   it("should handle blockquote without tokens", () => {
     const doc = createMockDoc();
     const context = {
       style: getDefaultStyle({ currentHeight: 70, currentWidth: 60, indent: 8, lineDistance: 10 }),
+      styleStack: [],
       getDoc() {
         return doc;
       },
       getStyle() {
         return this.style;
       },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
+      },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       lineBreak: jest.fn(function(distance) {
         this.style.currentHeight += distance;
       }),

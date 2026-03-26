@@ -1,5 +1,5 @@
 const { writeCheckBox, writeList, writeListItem } = require("../../helpers/list");
-const { getDefaultStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
 
 describe("md-to-pdf list helpers", () => {
   it("writeCheckBox should write checked prefix", () => {
@@ -30,12 +30,24 @@ describe("md-to-pdf list helpers", () => {
     const style = getDefaultStyle({ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 });
     const context = {
       style,
+      styleStack: [],
       getStyle() {
         return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
       },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       DFS: jest.fn(),
     };
 
@@ -49,7 +61,7 @@ describe("md-to-pdf list helpers", () => {
 
     expect(token.items[0].prefix).toBe("3. ");
     expect(token.items[1].prefix).toBe("4. ");
-    expect(context.style.currentWidth).toBe(60);
+    expect(context.style.currentWidth).toBe(68);
     expect(context.DFS).toHaveBeenCalledTimes(2);
   });
 
@@ -57,12 +69,24 @@ describe("md-to-pdf list helpers", () => {
     const style = getDefaultStyle({ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 });
     const context = {
       style,
+      styleStack: [],
       getStyle() {
         return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
       },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       DFS: jest.fn(),
     };
 
@@ -108,12 +132,24 @@ describe("md-to-pdf list helpers", () => {
     const style = getDefaultStyle({ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 });
     const context = {
       style,
+      styleStack: [],
       getStyle() {
         return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
       },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       DFS: jest.fn(),
     };
 

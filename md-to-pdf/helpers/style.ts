@@ -59,15 +59,8 @@ export function popStyle(this: MarkdownToPdfContext): void {
   this.setStyleStack(styleStack);
   this.setStyle({
     ...style,
-    currentWidth: current.currentWidth,
     currentHeight: current.currentHeight,
     cursorIndex: current.cursorIndex,
-    lineDistance: current.lineDistance,
-    lineSpc: current.lineSpc,
-    startWidth: current.startWidth,
-    startHeight: current.startHeight,
-    maxLineWidth: current.maxLineWidth,
-    pageHeight: current.pageHeight,
     skipParagraphBreak: current.skipParagraphBreak,
   });
 }

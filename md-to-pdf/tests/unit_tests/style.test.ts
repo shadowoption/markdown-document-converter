@@ -51,7 +51,7 @@ describe("md-to-pdf style helpers", () => {
     expect(context.style.bold).toBe(false);
   });
 
-  it("should preserve currentHeight/currentWidth when popping style", () => {
+  it("should preserve currentHeight and restore currentWidth when popping style", () => {
     const context = {
       style: getDefaultStyle({ currentHeight: 150, currentWidth: 77, cursorIndex: 80 }),
       styleStack: [getDefaultStyle({ currentHeight: 70, currentWidth: 60, cursorIndex: 60, bold: true })],
@@ -72,7 +72,7 @@ describe("md-to-pdf style helpers", () => {
     popStyle.call(context);
 
     expect(context.style.currentHeight).toBe(150);
-    expect(context.style.currentWidth).toBe(77);
+    expect(context.style.currentWidth).toBe(60);
     expect(context.style.cursorIndex).toBe(80);
     expect(context.style.bold).toBe(true);
   });
