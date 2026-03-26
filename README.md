@@ -1,12 +1,17 @@
 # Markdown Document Converter
 
-`markdown-document-converter` is a TypeScript library for converting Markdown into DOCX document children (`Paragraph` and `Table`) that can be passed directly into `docx` `Document` sections.
+`markdown-document-converter` is a TypeScript library for converting Markdown into:
+
+- DOCX document children (`Paragraph` and `Table`) for use with `docx` `Document` sections
+- PDF output via a caller-provided `jsPDF`-compatible document instance
 
 ## Current Status
 
 - Language: **TypeScript** (source in `.ts`, compiled to `dist/`)
-- Primary output: **Markdown → DOCX**
-- API surface: stable root export with `mdToDocx.convert(text, style?)`
+- Primary outputs: **Markdown → DOCX** and **Markdown → PDF**
+- API surface: stable root export with:
+  - `mdToDocx.convert(text, style?)`
+  - `mdToPdf.convert(doc, text, style?)`
 - Build strategy: **build-on-install** (`prepare` runs `npm run build`)
 
 ## Installation
@@ -37,7 +42,7 @@ In your consuming project:
 
 ```bash
 npm link markdown-document-converter
-npm install docx
+npm install docx jspdf
 ```
 
 For iterative local development, run this in the library repo while editing:
@@ -53,10 +58,10 @@ This keeps `dist/` updated so the linked consumer sees current changes.
 ### Root export
 
 ```ts
-const { mdToDocx } = require("markdown-document-converter");
+const { mdToDocx, mdToPdf } = require("markdown-document-converter");
 ```
 
-### Function signature
+### DOCX signature
 
 ```ts
 mdToDocx.convert(text: string, style?: Partial<MarkdownStyle>): DocxBlock[]
@@ -66,7 +71,18 @@ mdToDocx.convert(text: string, style?: Partial<MarkdownStyle>): DocxBlock[]
 - `style`: optional style overrides
 - returns: `DocxBlock[]` where `DocxBlock = Paragraph | Table`
 
-### `MarkdownStyle` fields
+### PDF signature
+
+```ts
+mdToPdf.convert(doc: JsPdfDoc, text: string, style?: Partial<PdfStyle>): number
+```
+
+- `doc`: a `jsPDF`-compatible document object (consumer-provided)
+- `text`: markdown input
+- `style`: optional style overrides
+- returns: final vertical cursor position (`currentHeight`) after rendering
+
+### `MarkdownStyle` fields (DOCX)
 
 All style fields are optional in `convert(..., style)` and merged over defaults.
 
@@ -86,9 +102,37 @@ All style fields are optional in `convert(..., style)` and merged over defaults.
 - `ordered: boolean`
 - `prefix?: string`
 
+### `PdfStyle` fields (PDF)
+
+All style fields are optional in `convert(..., style)` and merged over defaults.
+
+- `font: string | null`
+- `lineDistance: number`
+- `startWidth: number`
+- `startHeight: number`
+- `indent: number`
+- `blockColor: string`
+- `currentWidth: number`
+- `currentHeight: number`
+- `cursorIndex: number`
+- `fontSize: number`
+- `textColor: string`
+- `linkColor: string`
+- `drawColor: string`
+- `lineSpc: number`
+- `maxLineWidth: number`
+- `pageHeight: number`
+- `bold: boolean`
+- `italics: boolean`
+- `italic?: boolean`
+- `strike: boolean`
+- `code: boolean`
+- `link: string | null`
+- `skipParagraphBreak: boolean`
+
 ## Usage
 
-### Convert markdown to docx children
+### Convert markdown to DOCX children
 
 ```js
 const { mdToDocx } = require("markdown-document-converter");
@@ -121,6 +165,32 @@ const document = new Document({ sections: [{ children }] });
 Packer.toFile(document, "output.docx");
 ```
 
+### Convert markdown to PDF using `jsPDF`
+
+```js
+const { jsPDF } = require("jspdf");
+const { mdToPdf } = require("markdown-document-converter");
+
+const markdown = `
+# PDF Title
+
+This is **bold** text in PDF.
+
+1. First
+2. Second
+`;
+
+const doc = new jsPDF({ unit: "pt", format: "letter" });
+
+mdToPdf.convert(doc, markdown, {
+  startWidth: 48,
+  startHeight: 56,
+  maxLineWidth: 560,
+});
+
+doc.save("output.pdf");
+```
+
 ## Project Structure
 
 ```text
@@ -149,6 +219,26 @@ md-to-docx/
     parent.ts
   tests/
     ...all test files are .test.ts
+md-to-pdf/
+  index.ts
+  MarkdownToPdf.ts
+  types.ts
+  helpers/
+    blockquote.ts
+    code.ts
+    heading.ts
+    lines.ts
+    link.ts
+    list.ts
+    style.ts
+    table.ts
+    text.ts
+  processors/
+    child.ts
+    dfs.ts
+    parent.ts
+  tests/
+    ...all test files are .test.js
 tests/
   root-index.test.ts
 ```
@@ -161,7 +251,7 @@ tests/
 
 ### Tokens not currently supported (or only partially supported)
 
-The converter explicitly handles a subset of standard `marked` tokens. The following token categories are currently not rendered as rich DOCX features:
+The converters explicitly handle a subset of standard `marked` tokens. The following token categories are currently not rendered as rich DOCX/PDF features:
 
 - `def` tokens (link definitions) are currently ignored.
 - Raw HTML tokens (`html` / tag-like html token output) are not rendered as rich content.
@@ -178,6 +268,8 @@ Examples of extended markdown features that are not currently implemented as ded
 Unknown token shapes may fall back to plain text behavior when possible.
 
 ## Supported Markdown
+
+Both converters support:
 
 - Headings (`#` to `######`)
 - Bold / italic / strikethrough
@@ -205,15 +297,18 @@ Unknown token shapes may fall back to plain text behavior when possible.
 ## Testing
 
 - Test framework: Jest + ts-jest
-- Test files: TypeScript (`*.test.ts`)
-- Current suite size: **308 tests**
+- Test files: mixed TypeScript and JavaScript (`*.test.ts`, `*.test.js`)
+- Current suite size: **375 tests**
 
 ## Dependencies
 
 - Runtime:
   - `marked`
   - `he`
-  - `docx` (peer dependency)
+  - `jspdf-autotable`
+  - `docx` (peer dependency for DOCX output)
+- Consumer dependencies:
+  - `jspdf` (required when using `mdToPdf`)
 - Dev:
   - `typescript`
   - `jest`
@@ -226,5 +321,6 @@ Unknown token shapes may fall back to plain text behavior when possible.
 ## Notes / Limitations
 
 - Complex deeply nested markdown can still surface edge cases.
-- Raw HTML content is not rendered as rich DOCX HTML.
+- Raw HTML content is not rendered as rich DOCX/PDF HTML.
 - Images are currently routed through link handling rather than direct image embedding.
+- `mdToPdf` expects a compatible `jsPDF` document instance to be provided by the consumer.
