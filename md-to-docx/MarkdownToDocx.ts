@@ -71,13 +71,13 @@ export class MarkdownToDocx {
   // style parameter is optional, overrides default style
   constructor(style: Partial<MarkdownStyle> = {}) {
     // current text runs being processed for a paragraph
-    this.currentTextRuns = [];
+    this.currentTextRuns = [] as DocxParagraphChild[];
     // list of paragraphs to be returned at the end
-    this.paragraphs = [];
+    this.paragraphs = [] as DocxBlock[];
     // current style (initially default, updated as we traverse the tree)
     this.style = getDefaultStyle();
     // stack to keep track of styles as we traverse the tree (push on entry, pop on exit)
-    this.styleStack = [];
+    this.styleStack = [] as MarkdownStyle[];
 
     // bind helpers to instance (keeps bodies unchanged)
     this.pushStyle = pushStyle.bind(this);

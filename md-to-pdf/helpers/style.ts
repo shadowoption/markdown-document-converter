@@ -41,12 +41,14 @@ export function getDefaultStyle(overrides: Partial<PdfStyle> = {}): PdfStyle {
 }
 
 export function pushStyle(this: MarkdownToPdfContext): void {
+  // push the current style onto the stack
   const styleStack = this.getStyleStack().slice();
   styleStack.push({ ...this.getStyle() });
   this.setStyleStack(styleStack);
 }
 
 export function popStyle(this: MarkdownToPdfContext): void {
+  // pop the last style from the stack and set it as the current style
   const current = this.getStyle();
   const styleStack = this.getStyleStack().slice();
   if (styleStack.length === 0) {
@@ -71,6 +73,7 @@ export function popStyle(this: MarkdownToPdfContext): void {
 }
 
 export function updateStyle(this: MarkdownToPdfContext, partial: Partial<PdfStyle> = {}): void {
+  // update the current style with the given partial style
   const normalized: Partial<PdfStyle> = { ...partial };
 
   if (
@@ -93,6 +96,7 @@ export function updateStyle(this: MarkdownToPdfContext, partial: Partial<PdfStyl
 }
 
 export function setTextStyle(this: MarkdownToPdfContext, type: string): void {
+  // set text style based on the given type (e.g., "strong", "em", "del")
   switch (type) {
     case "strong":
       this.updateStyle({ bold: true });

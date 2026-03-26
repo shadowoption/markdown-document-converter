@@ -7,8 +7,8 @@ function hasChildren(token: MarkdownToken): boolean {
   );
 }
 
-export function DFS(this: MarkdownToPdfContext, nodes: MarkdownToken[]): void {
-  for (const token of nodes) {
+export function DFS(this: MarkdownToPdfContext, tokens: MarkdownToken[]): void {
+  for (const token of tokens) {
     if (hasChildren(token)) {
       this.processParent(token);
     } else {
