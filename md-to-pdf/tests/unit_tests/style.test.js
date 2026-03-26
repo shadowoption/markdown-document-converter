@@ -94,7 +94,7 @@ describe("md-to-pdf style helpers", () => {
     expect(() => popStyle.call(context)).toThrow("Style stack underflow");
   });
 
-  it("should normalize italic and italics in updateStyle", () => {
+  it("should update italics in updateStyle", () => {
     const context = {
       style: getDefaultStyle(),
       getStyle() {
@@ -105,11 +105,11 @@ describe("md-to-pdf style helpers", () => {
       },
     };
 
-    updateStyle.call(context, { italic: true });
+    updateStyle.call(context, { italics: true });
     expect(context.style.italics).toBe(true);
 
     updateStyle.call(context, { italics: false });
-    expect(context.style.italic).toBe(false);
+    expect(context.style.italics).toBe(false);
   });
 
   it("should set text styles", () => {

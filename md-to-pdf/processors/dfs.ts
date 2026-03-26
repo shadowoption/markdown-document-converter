@@ -1,10 +1,7 @@
-import type { MarkdownToPdfContext, MarkdownToken } from "../types";
+import type { MarkdownToPdfContext, MarkdownToken, MarkdownTokenWithTokens } from "../types";
 
-function hasChildren(token: MarkdownToken): boolean {
-  return (
-    Object.prototype.hasOwnProperty.call(token, "tokens") &&
-    Array.isArray((token as any).tokens)
-  );
+function hasChildren(token: MarkdownToken): token is MarkdownTokenWithTokens {
+  return "tokens" in token && Array.isArray(token.tokens);
 }
 
 export function DFS(this: MarkdownToPdfContext, tokens: MarkdownToken[]): void {

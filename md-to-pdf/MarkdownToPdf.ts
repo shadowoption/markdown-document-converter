@@ -107,7 +107,10 @@ export class MarkdownToPdf {
   }
 
   getDoc(): JsPdfDoc {
-    return this.doc as JsPdfDoc;
+    if (!this.doc) {
+      throw new Error("doc is not set");
+    }
+    return this.doc;
   }
 
   setDoc(doc: JsPdfDoc): void {

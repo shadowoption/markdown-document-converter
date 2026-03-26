@@ -124,7 +124,6 @@ All style fields are optional in `convert(..., style)` and merged over defaults.
 - `pageHeight: number`
 - `bold: boolean`
 - `italics: boolean`
-- `italic?: boolean`
 - `strike: boolean`
 - `code: boolean`
 - `link: string | null`
