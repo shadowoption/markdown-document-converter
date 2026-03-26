@@ -11,12 +11,12 @@ export function writeCheckBox(this: MarkdownToPdfContext, token: MarkdownCheckbo
 }
 
 export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken): void {
-  const prev = this.getStyle();
+  const startStyle = this.getStyle();
 
   // add bullet point prefix area and increase indent level
   this.updateStyle({
-    currentWidth: prev.currentWidth + prev.indent,
-    cursorIndex: prev.currentWidth + prev.indent,
+    currentWidth: startStyle.currentWidth + startStyle.indent,
+    cursorIndex: startStyle.currentWidth + startStyle.indent,
   });
 
   const items = token.items || [];
@@ -32,13 +32,6 @@ export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken):
     }
     this.DFS([item]);
   }
-
-  const current = this.getStyle();
-  this.updateStyle({
-    currentWidth: prev.currentWidth,
-    cursorIndex: prev.cursorIndex,
-    currentHeight: current.currentHeight,
-  });
 }
 
 export function writeListItem(this: MarkdownToPdfContext, token: MarkdownListItemToken): void {

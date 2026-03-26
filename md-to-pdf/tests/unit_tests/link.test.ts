@@ -1,16 +1,28 @@
 const { writeLink } = require("../../helpers/link");
-const { getDefaultStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
 
 describe("md-to-pdf link helper", () => {
-  it("should set link style, traverse children, and restore style", () => {
+  it("should set link style and traverse children", () => {
     const context = {
       style: getDefaultStyle({ textColor: "#111111", link: null }),
+      styleStack: [],
       getStyle() {
         return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
       },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       DFS: jest.fn(),
       writeText: jest.fn(),
     };
@@ -25,19 +37,31 @@ describe("md-to-pdf link helper", () => {
 
     expect(context.DFS).toHaveBeenCalledWith(token.tokens);
     expect(context.writeText).toHaveBeenCalledWith(" (Site)");
-    expect(context.style.textColor).toBe("#111111");
-    expect(context.style.link).toBe(null);
+    expect(context.style.textColor).toBe("#0000EE");
+    expect(context.style.link).toBe("https://example.com");
   });
 
   it("should fallback to token text when no child tokens", () => {
     const context = {
       style: getDefaultStyle(),
+      styleStack: [],
       getStyle() {
         return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
       },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       DFS: jest.fn(),
       writeText: jest.fn(),
     };
@@ -50,12 +74,24 @@ describe("md-to-pdf link helper", () => {
   it("should not append title when title is missing", () => {
     const context = {
       style: getDefaultStyle(),
+      styleStack: [],
       getStyle() {
         return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
       },
       updateStyle(partial) {
         this.style = { ...this.style, ...partial };
       },
+      pushStyle,
+      popStyle,
       DFS: jest.fn(),
       writeText: jest.fn(),
     };

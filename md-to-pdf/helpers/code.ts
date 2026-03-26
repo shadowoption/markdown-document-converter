@@ -2,9 +2,9 @@ import type { MarkdownCodeSpanToken, MarkdownCodeToken, MarkdownToPdfContext } f
 
 export function writeCode(this: MarkdownToPdfContext, token: MarkdownCodeToken): void {
   const doc = this.getDoc();
-  const prev = this.getStyle();
+  const startStyle = this.getStyle();
 
-  this.lineBreak(prev.lineSpc);
+  this.lineBreak(startStyle.lineSpc);
   this.updateStyle({ code: true });
 
   if (token.codeBlockStyle) {
@@ -22,25 +22,16 @@ export function writeCode(this: MarkdownToPdfContext, token: MarkdownCodeToken):
 
   const current = this.getStyle();
   doc.rect(
-    prev.startWidth - 10,
-    prev.currentHeight,
-    current.maxLineWidth - (prev.startWidth - 10),
-    current.currentHeight - prev.currentHeight
+    startStyle.startWidth - 10,
+    startStyle.currentHeight,
+    current.maxLineWidth - (startStyle.startWidth - 10),
+    current.currentHeight - startStyle.currentHeight
   );
 
   this.lineBreak(current.lineDistance);
-  const finalStyle = this.getStyle();
-  this.updateStyle({
-    code: prev.code,
-    currentWidth: prev.currentWidth,
-    cursorIndex: prev.currentWidth,
-    currentHeight: finalStyle.currentHeight,
-  });
 }
 
 export function writeCodeSpan(this: MarkdownToPdfContext, token: MarkdownCodeSpanToken): void {
-  const prev = this.getStyle();
   this.updateStyle({ code: true });
   this.writeText(token.text || "");
-  this.updateStyle({ code: prev.code });
 }
