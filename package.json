@@ -15,18 +15,20 @@
   },
   "homepage": "https://github.com/shadowoption/markdown-document-converter#readme",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && rm -rf dist/md-to-pdf && cp -R md-to-pdf dist/md-to-pdf",
     "build:watch": "tsc -p tsconfig.json --watch",
     "prepare": "npm run build",
     "test": "jest --coverage"
   },
   "files": [
     "dist",
+    "md-to-pdf",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
     "he": "^1.2.0",
+    "jspdf-autotable": "^5.0.2",
     "marked": "^17.0.4"
   },
   "peerDependencies": {
