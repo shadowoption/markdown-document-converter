@@ -13,6 +13,7 @@ export function writeCheckBox(this: MarkdownToPdfContext, token: MarkdownCheckbo
 export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken): void {
   const prev = this.getStyle();
 
+  // add bullet point prefix area and increase indent level
   this.updateStyle({
     currentWidth: prev.currentWidth + prev.indent,
     cursorIndex: prev.currentWidth + prev.indent,
@@ -23,6 +24,7 @@ export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken):
 
   for (let index = 0; index < items.length; index += 1) {
     const item = items[index] as MarkdownListItemToken;
+    // if ordered, replace bullet point with current index for numbering
     if (token.ordered) {
       item.prefix = `${start + index}. `;
     } else {

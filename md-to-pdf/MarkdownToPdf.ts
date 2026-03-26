@@ -62,11 +62,16 @@ export class MarkdownToPdf {
   public DFS: (tokens: MarkdownToken[]) => void;
   public setDocStyle: (doc: JsPdfDoc, text: string, style: PdfStyle) => void;
 
+  // style parameter is optional, overrides default style
   constructor(style: Partial<PdfStyle> = {}) {
-    this.doc = null;
+    // current jsPDF document reference
+    this.doc = null as JsPdfDoc | null;
+    // current style (initially default, updated as we traverse the tree)
     this.style = getDefaultStyle();
-    this.styleStack = [];
+    // stack to keep track of styles as we traverse the tree (push on entry, pop on exit)
+    this.styleStack = [] as PdfStyle[];
 
+    // bind helpers to instance (keeps bodies unchanged)
     this.setDocStyle = setDocStyle.bind(this);
     this.pushStyle = pushStyle.bind(this);
     this.popStyle = popStyle.bind(this);
@@ -85,10 +90,13 @@ export class MarkdownToPdf {
     this.writeBlockquote = writeBlockquote.bind(this);
     this.writeHeading = writeHeading.bind(this);
     this.writeLink = writeLink.bind(this);
+
+    // bind processors
     this.processParent = processParent.bind(this);
     this.processChild = processChild.bind(this);
     this.DFS = DFS.bind(this);
 
+    // apply initial style overrides
     this.updateStyle(style);
     if (
       Object.prototype.hasOwnProperty.call(style, "textColor") &&
@@ -130,14 +138,17 @@ export class MarkdownToPdf {
     const marked = require("marked");
     const he = require("he");
 
+    // set the active document and reset traversal style stack
     this.setDoc(doc);
     this.setStyleStack([]);
     this.updateStyle({
       cursorIndex: this.getStyle().currentWidth,
     });
 
+    // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
     const tokens: MarkdownTokensList = marked.lexer(text, { gfm: true, breaks: true });
 
+    // decode HTML text and split code lines
     marked.walkTokens(tokens, (token: MarkdownToken) => {
       if ("text" in token && typeof token.text === "string") {
         token.text = he.decode(token.text);
@@ -147,8 +158,10 @@ export class MarkdownToPdf {
       }
     });
 
+    // traverse the token tree and render to jsPDF
     this.DFS(tokens);
 
+    // return the final vertical cursor position
     return this.getStyle().currentHeight;
   }
 }

@@ -5,7 +5,9 @@ import type { MarkdownTableToken, MarkdownToPdfContext } from "../types";
 export function processTable(this: MarkdownToPdfContext, token: MarkdownTableToken): void {
   const doc = this.getDoc();
   const style = this.getStyle();
+  // write table headers
   const tableHeaders = token.header.map((header: any) => header.text);
+  // write table rows
   const tableData = token.rows.map((row: any[]) => {
     return tableHeaders.map((_: string, index: number) => ({
       content: row[index].text,
@@ -18,6 +20,7 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
   this.lineBreak(style.lineDistance);
   const nextStyle = { ...this.getStyle() };
 
+  // create the table with the generated rows
   autoTable(doc, {
     head: [tableHeaders],
     body: tableData,
@@ -30,6 +33,7 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
     },
   });
 
+  // update cursor position after table rendering
   this.setStyle(nextStyle);
   this.lineBreak(nextStyle.lineDistance);
 }
