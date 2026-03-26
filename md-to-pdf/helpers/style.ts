@@ -1,4 +1,4 @@
-let jspdfFonts;
+let jspdfFonts: { chooseFontForText: (text: string) => string };
 
 try {
   jspdfFonts = require("../../../assets/js/jspdfFonts.js");
@@ -10,7 +10,9 @@ try {
   };
 }
 
-function getDefaultStyle(overrides = {}) {
+import type { JsPdfDoc, MarkdownToPdfContext, PdfStyle } from "../types";
+
+export function getDefaultStyle(overrides: Partial<PdfStyle> = {}): PdfStyle {
   return {
     font: null,
     lineDistance: 10,
@@ -38,22 +40,21 @@ function getDefaultStyle(overrides = {}) {
   };
 }
 
-function pushStyle() {
+export function pushStyle(this: MarkdownToPdfContext): void {
   const styleStack = this.getStyleStack().slice();
   styleStack.push({ ...this.getStyle() });
   this.setStyleStack(styleStack);
 }
 
-function popStyle() {
+export function popStyle(this: MarkdownToPdfContext): void {
   const current = this.getStyle();
   const styleStack = this.getStyleStack().slice();
   if (styleStack.length === 0) {
     throw new Error("Style stack underflow: no styles to pop");
   }
 
-  const style = styleStack.pop();
+  const style = styleStack.pop() as PdfStyle;
   this.setStyleStack(styleStack);
-  // currentHeight and currentWidth should not be overridden by popStyle, as they represent the current index in the file
   this.setStyle({
     ...style,
     currentWidth: current.currentWidth,
@@ -69,13 +70,19 @@ function popStyle() {
   });
 }
 
-function updateStyle(partial = {}) {
-  const normalized = { ...partial };
+export function updateStyle(this: MarkdownToPdfContext, partial: Partial<PdfStyle> = {}): void {
+  const normalized: Partial<PdfStyle> = { ...partial };
 
-  if (Object.hasOwn(normalized, "italic") && !Object.hasOwn(normalized, "italics")) {
+  if (
+    Object.prototype.hasOwnProperty.call(normalized, "italic") &&
+    !Object.prototype.hasOwnProperty.call(normalized, "italics")
+  ) {
     normalized.italics = normalized.italic;
   }
-  if (Object.hasOwn(normalized, "italics") && !Object.hasOwn(normalized, "italic")) {
+  if (
+    Object.prototype.hasOwnProperty.call(normalized, "italics") &&
+    !Object.prototype.hasOwnProperty.call(normalized, "italic")
+  ) {
     normalized.italic = normalized.italics;
   }
 
@@ -85,7 +92,7 @@ function updateStyle(partial = {}) {
   });
 }
 
-function setTextStyle(type) {
+export function setTextStyle(this: MarkdownToPdfContext, type: string): void {
   switch (type) {
     case "strong":
       this.updateStyle({ bold: true });
@@ -101,7 +108,7 @@ function setTextStyle(type) {
   }
 }
 
-function checkHeight(doc, style) {
+export function checkHeight(doc: JsPdfDoc, style: PdfStyle): number {
   if (style.currentHeight + style.lineSpc > style.pageHeight) {
     doc.addPage();
     return style.startHeight;
@@ -110,7 +117,7 @@ function checkHeight(doc, style) {
   return style.currentHeight;
 }
 
-function setDocStyle(doc, text, style) {
+export function setDocStyle(doc: JsPdfDoc, text: string, style: PdfStyle): void {
   const font = style.code ? "courier" : style.font || jspdfFonts.chooseFontForText(text);
 
   doc.setFont(font);
@@ -128,13 +135,3 @@ function setDocStyle(doc, text, style) {
     doc.setFont(font, "normal");
   }
 }
-
-module.exports = {
-  getDefaultStyle,
-  pushStyle,
-  popStyle,
-  updateStyle,
-  setTextStyle,
-  checkHeight,
-  setDocStyle,
-};

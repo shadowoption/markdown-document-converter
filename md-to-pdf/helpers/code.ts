@@ -1,4 +1,6 @@
-function writeCode(token) {
+import type { MarkdownCodeSpanToken, MarkdownCodeToken, MarkdownToPdfContext } from "../types";
+
+export function writeCode(this: MarkdownToPdfContext, token: MarkdownCodeToken): void {
   const doc = this.getDoc();
   const prev = this.getStyle();
 
@@ -36,14 +38,9 @@ function writeCode(token) {
   });
 }
 
-function writeCodeSpan(token) {
+export function writeCodeSpan(this: MarkdownToPdfContext, token: MarkdownCodeSpanToken): void {
   const prev = this.getStyle();
   this.updateStyle({ code: true });
   this.writeText(token.text || "");
   this.updateStyle({ code: prev.code });
 }
-
-module.exports = {
-  writeCode,
-  writeCodeSpan,
-};

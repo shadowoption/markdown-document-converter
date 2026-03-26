@@ -1,9 +1,16 @@
-function writeCheckBox(token) {
+import type {
+  MarkdownCheckboxToken,
+  MarkdownListItemToken,
+  MarkdownListToken,
+  MarkdownToPdfContext,
+} from "../types";
+
+export function writeCheckBox(this: MarkdownToPdfContext, token: MarkdownCheckboxToken): void {
   token.prefix = token.checked ? "[X] " : "[ ] ";
   this.writePrefix(token);
 }
 
-function writeList(token) {
+export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken): void {
   const prev = this.getStyle();
 
   this.updateStyle({
@@ -15,7 +22,7 @@ function writeList(token) {
   const start = Number(token.start) || 1;
 
   for (let index = 0; index < items.length; index += 1) {
-    const item = items[index];
+    const item = items[index] as MarkdownListItemToken;
     if (token.ordered) {
       item.prefix = `${start + index}. `;
     } else {
@@ -32,7 +39,7 @@ function writeList(token) {
   });
 }
 
-function writeListItem(token) {
+export function writeListItem(this: MarkdownToPdfContext, token: MarkdownListItemToken): void {
   const style = this.getStyle();
   this.lineBreak(token.loose ? style.lineSpc : style.lineDistance);
 
@@ -44,9 +51,3 @@ function writeListItem(token) {
   this.updateStyle({ skipParagraphBreak: true });
   this.DFS(token.tokens || []);
 }
-
-module.exports = {
-  writeCheckBox,
-  writeList,
-  writeListItem,
-};
