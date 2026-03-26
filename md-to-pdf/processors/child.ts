@@ -1,4 +1,13 @@
-import type { MarkdownToPdfContext, MarkdownToken } from "../types";
+import type {
+  MarkdownCheckboxToken,
+  MarkdownCodeSpanToken,
+  MarkdownCodeToken,
+  MarkdownLinkToken,
+  MarkdownListToken,
+  MarkdownTableToken,
+  MarkdownToPdfContext,
+  MarkdownToken,
+} from "../types";
 
 export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): void {
   // save current style on stack
@@ -11,15 +20,15 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
       break;
     // checkbox
     case "checkbox":
-      this.writeCheckBox(token as any);
+      this.writeCheckBox(token as MarkdownCheckboxToken);
       break;
     // code block
     case "code":
-      this.writeCode(token as any);
+      this.writeCode(token as MarkdownCodeToken);
       break;
     // inline code
     case "codespan":
-      this.writeCodeSpan(token as any);
+      this.writeCodeSpan(token as MarkdownCodeSpanToken);
       break;
     // unused token
     case "def":
@@ -33,11 +42,11 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
       break;
     // image
     case "image":
-      this.writeLink(token as any);
+      this.writeLink(token as MarkdownLinkToken);
       break;
     // list
     case "list":
-      this.writeList(token as any);
+      this.writeList(token as MarkdownListToken);
       break;
     // space
     case "space":
@@ -45,13 +54,13 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
       break;
     // table
     case "table":
-      this.processTable(token as any);
+      this.processTable(token as MarkdownTableToken);
       break;
     // escaped text and text
     case "escape":
     default:
       // text fallback
-      this.writeText("text" in token ? String((token as any).text || "") : "");
+      this.writeText("text" in token ? String(token.text || "") : "");
       break;
   }
 

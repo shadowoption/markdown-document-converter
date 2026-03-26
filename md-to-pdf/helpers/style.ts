@@ -74,24 +74,9 @@ export function popStyle(this: MarkdownToPdfContext): void {
 
 export function updateStyle(this: MarkdownToPdfContext, partial: Partial<PdfStyle> = {}): void {
   // update the current style with the given partial style
-  const normalized: Partial<PdfStyle> = { ...partial };
-
-  if (
-    Object.prototype.hasOwnProperty.call(normalized, "italic") &&
-    !Object.prototype.hasOwnProperty.call(normalized, "italics")
-  ) {
-    normalized.italics = normalized.italic;
-  }
-  if (
-    Object.prototype.hasOwnProperty.call(normalized, "italics") &&
-    !Object.prototype.hasOwnProperty.call(normalized, "italic")
-  ) {
-    normalized.italic = normalized.italics;
-  }
-
   this.setStyle({
     ...this.getStyle(),
-    ...normalized,
+    ...partial,
   });
 }
 

@@ -34,7 +34,6 @@ export interface PdfStyle {
   pageHeight: number;
   bold: boolean;
   italics: boolean;
-  italic?: boolean;
   strike: boolean;
   code: boolean;
   link: string | null;
@@ -86,3 +85,7 @@ export interface MarkdownToPdfContext {
   DFS: (tokens: MarkdownToken[]) => void;
   setDocStyle: (doc: JsPdfDoc, text: string, style: PdfStyle) => void;
 }
+
+export type MarkdownTokenWithTokens = MarkdownToken & {
+  tokens: MarkdownToken[];
+};
