@@ -42,9 +42,11 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
     head: [tableHeaders],
     body: tableData,
     startY: nextStyle.currentHeight,
-    tableWidth: nextStyle.maxLineWidth,
+    tableWidth: nextStyle.maxLineWidth - nextStyle.currentWidth,
     pageBreak: "avoid",
-    margin: nextStyle.currentWidth,
+    margin: {
+      left: nextStyle.currentWidth,
+    },
     didDrawPage: (data: any) => {
       // Sync our cursor with autoTable's internal cursor across page breaks.
       nextStyle.currentHeight = data.cursor.y;

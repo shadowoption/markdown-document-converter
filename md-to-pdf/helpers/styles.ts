@@ -94,7 +94,7 @@ export function checkHeight(doc: JsPdfDoc, style: PdfStyle): number {
 export function setDocStyle(doc: JsPdfDoc, text: string, style: PdfStyle): void {
   const font = jspdfFonts.chooseFontForText(text, style.code ? style.monospaceFont : style.font);
 
-  doc.setFont(font);
+  doc.setFont(style.font);
   doc.setFontSize(style.fontSize);
   doc.setTextColor(style.textColor);
   doc.setDrawColor(style.drawColor);
