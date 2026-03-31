@@ -1,10 +1,10 @@
 const { writeLink } = require("../../helpers/link");
-const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/styles");
 
 describe("md-to-pdf link helper", () => {
   it("should set link style and traverse children", () => {
     const context = {
-      style: getDefaultStyle({ textColor: "#111111", link: null }),
+      style: ({ ...getDefaultStyle(), ...{ textColor: "#111111", link: null } }),
       styleStack: [],
       getStyle() {
         return this.style;

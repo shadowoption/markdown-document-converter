@@ -21,6 +21,7 @@ export function writeCode(this: MarkdownToPdfContext, token: MarkdownCodeToken):
   }
 
   const current = this.getStyle();
+  // Draw a border from the block's initial Y to the final cursor Y.
   doc.rect(
     startStyle.startWidth - 10,
     startStyle.currentHeight,

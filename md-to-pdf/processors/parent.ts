@@ -3,12 +3,14 @@ import type {
   MarkdownHeadingToken,
   MarkdownLinkToken,
   MarkdownListItemToken,
+  MarkdownParagraphToken,
   MarkdownToPdfContext,
   MarkdownToken,
   MarkdownTokenWithTokens,
 } from "../types";
 
 function hasChildren(token: MarkdownToken): token is MarkdownTokenWithTokens {
+  // Parent-level tokens expose nested tokens that should be traversed recursively.
   return "tokens" in token && Array.isArray(token.tokens);
 }
 
@@ -47,12 +49,7 @@ export function processParent(this: MarkdownToPdfContext, token: MarkdownToken):
       break;
     // paragraphs
     case "paragraph":
-      if (this.getStyle().skipParagraphBreak) {
-        this.updateStyle({ skipParagraphBreak: false });
-      } else {
-        this.lineBreak(this.getStyle().lineDistance);
-      }
-      this.DFS(hasChildren(token) ? token.tokens : []);
+      this.writeParagraph(token as MarkdownParagraphToken);
       break;
     // bold
     case "strong":

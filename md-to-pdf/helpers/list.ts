@@ -43,6 +43,8 @@ export function writeListItem(this: MarkdownToPdfContext, token: MarkdownListIte
   }
 
   this.writePrefix(token);
+  // The first paragraph in an item should continue after the prefix, not add
+  // another paragraph break before content.
   this.updateStyle({ skipParagraphBreak: true });
   this.DFS(token.tokens || []);
 }

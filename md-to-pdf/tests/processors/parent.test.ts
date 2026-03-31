@@ -13,6 +13,7 @@ describe("md-to-pdf parent processor", () => {
       writeHeading: jest.fn(),
       writeLink: jest.fn(),
       writeListItem: jest.fn(),
+      writeParagraph: jest.fn(),
       lineBreak: jest.fn(),
       updateStyle: jest.fn(),
       getStyle: jest.fn(() => ({ lineDistance: 10, skipParagraphBreak: false })),
@@ -39,8 +40,7 @@ describe("md-to-pdf parent processor", () => {
 
     processParent.call(context, token);
 
-    expect(context.lineBreak).toHaveBeenCalledWith(10);
-    expect(context.DFS).toHaveBeenCalledWith(token.tokens);
+    expect(context.writeParagraph).toHaveBeenCalledWith(token);
   });
 
   it("should skip paragraph break when skipParagraphBreak is true", () => {
@@ -49,8 +49,7 @@ describe("md-to-pdf parent processor", () => {
 
     processParent.call(context, token);
 
-    expect(context.updateStyle).toHaveBeenCalledWith({ skipParagraphBreak: false });
-    expect(context.lineBreak).not.toHaveBeenCalled();
+    expect(context.writeParagraph).toHaveBeenCalledWith(token);
   });
 
   it("should set strong/em/del style and traverse", () => {

@@ -1,4 +1,4 @@
-import { checkHeight } from "./style";
+import { checkHeight } from "./styles";
 import type { JsPdfDoc, MarkdownToPdfContext, PdfStyle } from "../types";
 
 export function breakLine(doc: JsPdfDoc, distance: number, lastStyle: PdfStyle): PdfStyle {

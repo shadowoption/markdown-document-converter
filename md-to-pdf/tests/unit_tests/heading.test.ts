@@ -1,10 +1,10 @@
 const { writeHeading } = require("../../helpers/heading");
-const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/styles");
 
 describe("md-to-pdf heading helper", () => {
   it("should increase height and apply heading style", () => {
     const context = {
-      style: getDefaultStyle({ currentHeight: 70, fontSize: 10, bold: false, lineSpc: 18 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, fontSize: 10, bold: false, lineSpc: 18 } }),
       styleStack: [],
       getStyle() {
         return this.style;
@@ -39,7 +39,7 @@ describe("md-to-pdf heading helper", () => {
 
   it("should handle heading token without tokens", () => {
     const context = {
-      style: getDefaultStyle({ currentHeight: 70, fontSize: 10, bold: false, lineSpc: 18 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, fontSize: 10, bold: false, lineSpc: 18 } }),
       styleStack: [],
       getStyle() {
         return this.style;
