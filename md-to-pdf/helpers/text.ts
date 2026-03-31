@@ -20,8 +20,9 @@ export function writeText(this: MarkdownToPdfContext, text: string): PdfStyle {
   const lastStyle = this.getStyle();
   const style = { ...lastStyle };
 
+  // split text into components that will not exceed the maximum line width
   this.setDocStyle(doc, text, style);
-  const splitText = doc.splitTextToSize(text, style.maxLineWidth);
+  const splitText = doc.splitTextToSize(text, style.maxLineWidth - style.cursorIndex);
 
   for (const piece of splitText) {
     // Guard for long fragments that still exceed width after splitting.
