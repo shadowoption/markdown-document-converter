@@ -5,7 +5,7 @@ import {
   updateStyle,
   setTextStyle,
   setDocStyle,
-} from "./helpers/style";
+} from "./helpers/styles";
 import { horizontalLine, lineBreak } from "./helpers/lines";
 import { writePrefix, writeText } from "./helpers/text";
 import { processTable } from "./helpers/table";
@@ -14,6 +14,7 @@ import { writeCode, writeCodeSpan } from "./helpers/code";
 import { writeBlockquote } from "./helpers/blockquote";
 import { writeHeading } from "./helpers/heading";
 import { writeLink } from "./helpers/link";
+import { writeParagraph } from "./helpers/paragraph";
 
 import { processParent } from "./processors/parent";
 import { processChild } from "./processors/child";
@@ -26,6 +27,7 @@ import type {
   MarkdownCodeSpanToken,
   MarkdownCodeToken,
   MarkdownHeadingToken,
+  MarkdownParagraphToken,
   MarkdownLinkToken,
   MarkdownListItemToken,
   MarkdownListToken,
@@ -57,6 +59,7 @@ export class MarkdownToPdf {
   public writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
   public writeBlockquote: (token: MarkdownBlockquoteToken) => void;
   public writeHeading: (token: MarkdownHeadingToken) => void;
+  public writeParagraph: (token: MarkdownParagraphToken) => void;
   public processParent: (token: MarkdownToken) => void;
   public processChild: (token: MarkdownToken) => void;
   public DFS: (tokens: MarkdownToken[]) => void;
@@ -90,6 +93,7 @@ export class MarkdownToPdf {
     this.writeBlockquote = writeBlockquote.bind(this);
     this.writeHeading = writeHeading.bind(this);
     this.writeLink = writeLink.bind(this);
+    this.writeParagraph = writeParagraph.bind(this);
 
     // bind processors
     this.processParent = processParent.bind(this);

@@ -1,12 +1,12 @@
 const { writeText, writePrefix } = require("../../helpers/text");
-const { getDefaultStyle, setDocStyle } = require("../../helpers/style");
+const { getDefaultStyle, setDocStyle } = require("../../helpers/styles");
 const { createMockDoc } = require("../test-utils/mockDoc");
 
 describe("md-to-pdf text helpers", () => {
   function createContext(docOverrides = {}, styleOverrides = {}) {
     const doc = createMockDoc(docOverrides);
     const context = {
-      style: getDefaultStyle(styleOverrides),
+      style: ({ ...getDefaultStyle(), ...styleOverrides }),
       getDoc() {
         return doc;
       },

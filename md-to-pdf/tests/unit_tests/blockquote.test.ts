@@ -1,12 +1,12 @@
 const { writeBlockquote } = require("../../helpers/blockquote");
-const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/styles");
 const { createMockDoc } = require("../test-utils/mockDoc");
 
 describe("md-to-pdf blockquote helper", () => {
   it("should render blockquote line and preserve increased currentHeight", () => {
     const doc = createMockDoc();
     const context = {
-      style: getDefaultStyle({ currentHeight: 70, currentWidth: 60, indent: 8, lineDistance: 10 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, currentWidth: 60, indent: 8, lineDistance: 10 } }),
       styleStack: [],
       getDoc() {
         return doc;
@@ -47,7 +47,7 @@ describe("md-to-pdf blockquote helper", () => {
   it("should handle blockquote without tokens", () => {
     const doc = createMockDoc();
     const context = {
-      style: getDefaultStyle({ currentHeight: 70, currentWidth: 60, indent: 8, lineDistance: 10 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, currentWidth: 60, indent: 8, lineDistance: 10 } }),
       styleStack: [],
       getDoc() {
         return doc;

@@ -1,4 +1,4 @@
-import { checkHeight } from "./style";
+import { checkHeight } from "./styles";
 import type { MarkdownCheckboxToken, MarkdownListItemToken, MarkdownToPdfContext, PdfStyle } from "../types";
 
 export function writePrefix(
@@ -24,6 +24,7 @@ export function writeText(this: MarkdownToPdfContext, text: string): PdfStyle {
   const splitText = doc.splitTextToSize(text, style.maxLineWidth);
 
   for (const piece of splitText) {
+    // Guard for long fragments that still exceed width after splitting.
     if (style.cursorIndex + doc.getTextWidth(piece) > style.maxLineWidth) {
       style.currentHeight += style.lineSpc;
       style.cursorIndex = style.currentWidth;
@@ -32,6 +33,7 @@ export function writeText(this: MarkdownToPdfContext, text: string): PdfStyle {
     style.currentHeight = checkHeight(doc, style);
     this.setDocStyle(doc, piece, style);
 
+    // Links are rendered with an embedded URL, plain text otherwise.
     if (style.link) {
       doc.textWithLink(piece, style.cursorIndex, style.currentHeight, {
         url: style.link,
@@ -40,6 +42,7 @@ export function writeText(this: MarkdownToPdfContext, text: string): PdfStyle {
       doc.text(piece, style.cursorIndex, style.currentHeight);
     }
 
+    // Draw a manual strike line because jsPDF does not provide text decoration.
     if (style.strike) {
       doc.line(
         style.cursorIndex,

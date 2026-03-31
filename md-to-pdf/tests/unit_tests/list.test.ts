@@ -1,5 +1,5 @@
 const { writeCheckBox, writeList, writeListItem } = require("../../helpers/list");
-const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/style");
+const { getDefaultStyle, pushStyle, popStyle } = require("../../helpers/styles");
 
 describe("md-to-pdf list helpers", () => {
   it("writeCheckBox should write checked prefix", () => {
@@ -27,7 +27,7 @@ describe("md-to-pdf list helpers", () => {
   });
 
   it("writeList should set ordered prefixes and restore width", () => {
-    const style = getDefaultStyle({ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 });
+    const style = ({ ...getDefaultStyle(), ...{ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 } });
     const context = {
       style,
       styleStack: [],
@@ -66,7 +66,7 @@ describe("md-to-pdf list helpers", () => {
   });
 
   it("writeList should default ordered start to 1 when start is invalid", () => {
-    const style = getDefaultStyle({ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 });
+    const style = ({ ...getDefaultStyle(), ...{ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 } });
     const context = {
       style,
       styleStack: [],
@@ -103,7 +103,7 @@ describe("md-to-pdf list helpers", () => {
 
   it("writeListItem should create line break and set skipParagraphBreak", () => {
     const context = {
-      style: getDefaultStyle({ lineDistance: 10, lineSpc: 18 }),
+      style: ({ ...getDefaultStyle(), ...{ lineDistance: 10, lineSpc: 18 } }),
       getStyle() {
         return this.style;
       },
@@ -129,7 +129,7 @@ describe("md-to-pdf list helpers", () => {
   });
 
   it("writeList should set bullet prefixes for unordered list", () => {
-    const style = getDefaultStyle({ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 });
+    const style = ({ ...getDefaultStyle(), ...{ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 } });
     const context = {
       style,
       styleStack: [],
@@ -166,7 +166,7 @@ describe("md-to-pdf list helpers", () => {
 
   it("writeListItem should not append checkbox prefix when task is false", () => {
     const context = {
-      style: getDefaultStyle({ lineDistance: 10, lineSpc: 18 }),
+      style: ({ ...getDefaultStyle(), ...{ lineDistance: 10, lineSpc: 18 } }),
       getStyle() {
         return this.style;
       },
@@ -189,7 +189,7 @@ describe("md-to-pdf list helpers", () => {
 
   it("writeListItem should fallback to empty tokens array", () => {
     const context = {
-      style: getDefaultStyle({ lineDistance: 10, lineSpc: 18 }),
+      style: ({ ...getDefaultStyle(), ...{ lineDistance: 10, lineSpc: 18 } }),
       getStyle() {
         return this.style;
       },

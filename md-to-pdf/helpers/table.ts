@@ -5,6 +5,7 @@ import type { MarkdownTableToken, MarkdownToPdfContext } from "../types";
 type CellInput = MarkdownTableToken["header"][number] | string | number | null | undefined;
 
 function normalizeText(value: CellInput): string {
+  // Marked table cells may arrive as strings, token-like objects, or scalar values.
   if (value === null || value === undefined) {
     return "";
   }
@@ -27,6 +28,7 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
     return tableHeaders.map((_: string, index: number) => ({
       content: normalizeText(row[index]),
       styles: {
+        // Keep existing behavior: default to centered text when alignment is absent.
         halign: token.align[index] || "center",
       },
     }));
@@ -44,6 +46,7 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
     pageBreak: "avoid",
     margin: nextStyle.currentWidth,
     didDrawPage: (data: any) => {
+      // Sync our cursor with autoTable's internal cursor across page breaks.
       nextStyle.currentHeight = data.cursor.y;
     },
   });

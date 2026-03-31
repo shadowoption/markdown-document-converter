@@ -1,6 +1,7 @@
 import type { MarkdownToPdfContext, MarkdownToken, MarkdownTokenWithTokens } from "../types";
 
 function hasChildren(token: MarkdownToken): token is MarkdownTokenWithTokens {
+  // Tokens with nested `tokens` are handled by `processParent`.
   return "tokens" in token && Array.isArray(token.tokens);
 }
 

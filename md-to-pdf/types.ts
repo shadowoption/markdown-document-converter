@@ -3,6 +3,7 @@ import type { Token, Tokens, TokensList } from "marked";
 export type MarkdownToken = Token;
 export type MarkdownTokensList = TokensList;
 export type MarkdownHeadingToken = Tokens.Heading;
+export type MarkdownParagraphToken = Tokens.Paragraph;
 export type MarkdownBlockquoteToken = Tokens.Blockquote;
 export type MarkdownLinkToken = Tokens.Link | Tokens.Image;
 export type MarkdownCheckboxToken = (Tokens.Checkbox | Tokens.ListItem) & {
@@ -17,6 +18,7 @@ export type MarkdownTableToken = Tokens.Table;
 
 export interface PdfStyle {
   font: string | null;
+  monospaceFont: string;
   lineDistance: number;
   startWidth: number;
   startHeight: number;
@@ -80,6 +82,7 @@ export interface MarkdownToPdfContext {
   writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
   writeBlockquote: (token: MarkdownBlockquoteToken) => void;
   writeHeading: (token: MarkdownHeadingToken) => void;
+  writeParagraph: (token: MarkdownParagraphToken) => void;
   processParent: (token: MarkdownToken) => void;
   processChild: (token: MarkdownToken) => void;
   DFS: (tokens: MarkdownToken[]) => void;

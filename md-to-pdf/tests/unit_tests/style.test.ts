@@ -1,3 +1,9 @@
+jest.mock("../../jspdfFonts", () => ({
+  chooseFontForText: jest.fn().mockReturnValue("mock-font"),
+}));
+
+const jspdfFonts = require("../../jspdfFonts");
+const actualJspdfFonts = jest.requireActual("../../jspdfFonts");
 const {
   getDefaultStyle,
   pushStyle,
@@ -6,10 +12,19 @@ const {
   setTextStyle,
   checkHeight,
   setDocStyle,
-} = require("../../helpers/style");
+} = require("../../helpers/styles");
 const { createMockDoc } = require("../test-utils/mockDoc");
 
 describe("md-to-pdf style helpers", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should import the real jspdfFonts module with chooseFontForText", () => {
+    expect(actualJspdfFonts).toBeDefined();
+    expect(typeof actualJspdfFonts.chooseFontForText).toBe("function");
+  });
+
   it("should return default style", () => {
     const style = getDefaultStyle();
 
@@ -20,7 +35,7 @@ describe("md-to-pdf style helpers", () => {
   });
 
   it("should merge default style overrides", () => {
-    const style = getDefaultStyle({ fontSize: 18, textColor: "#111" });
+    const style = ({ ...getDefaultStyle(), ...{ fontSize: 18, textColor: "#111" } });
 
     expect(style.fontSize).toBe(18);
     expect(style.textColor).toBe("#111");
@@ -28,7 +43,7 @@ describe("md-to-pdf style helpers", () => {
 
   it("should push and pop style stack", () => {
     const context = {
-      style: getDefaultStyle({ bold: false }),
+      style: ({ ...getDefaultStyle(), ...{ bold: false } }),
       styleStack: [],
       getStyle() {
         return this.style;
@@ -53,8 +68,8 @@ describe("md-to-pdf style helpers", () => {
 
   it("should preserve currentHeight and restore currentWidth when popping style", () => {
     const context = {
-      style: getDefaultStyle({ currentHeight: 150, currentWidth: 77, cursorIndex: 80 }),
-      styleStack: [getDefaultStyle({ currentHeight: 70, currentWidth: 60, cursorIndex: 60, bold: true })],
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 150, currentWidth: 77, cursorIndex: 80 } }),
+      styleStack: [({ ...getDefaultStyle(), ...{ currentHeight: 70, currentWidth: 60, cursorIndex: 60, bold: true } })],
       getStyle() {
         return this.style;
       },
@@ -137,7 +152,7 @@ describe("md-to-pdf style helpers", () => {
 
   it("checkHeight should add page and reset when overflow", () => {
     const doc = createMockDoc();
-    const style = getDefaultStyle({ currentHeight: 780, lineSpc: 20, pageHeight: 790, startHeight: 70 });
+    const style = ({ ...getDefaultStyle(), ...{ currentHeight: 780, lineSpc: 20, pageHeight: 790, startHeight: 70 } });
 
     const result = checkHeight(doc, style);
 
@@ -147,14 +162,25 @@ describe("md-to-pdf style helpers", () => {
 
   it("setDocStyle should configure font, size, and text style", () => {
     const doc = createMockDoc();
-    const style = getDefaultStyle({ fontSize: 12, bold: true, italics: true, font: "Times" });
+    const style = ({ ...getDefaultStyle(), ...{ fontSize: 12, bold: true, italics: true, font: "Times" } });
 
     setDocStyle(doc, "hello", style);
 
-    expect(doc.setFont).toHaveBeenCalledWith("Times");
+    expect(jspdfFonts.chooseFontForText).toHaveBeenCalledWith("hello", "Times");
+    expect(doc.setFont).toHaveBeenCalledWith("mock-font");
     expect(doc.setFontSize).toHaveBeenCalledWith(12);
     expect(doc.setTextColor).toHaveBeenCalledWith(style.textColor);
     expect(doc.setDrawColor).toHaveBeenCalledWith(style.drawColor);
-    expect(doc.setFont).toHaveBeenCalledWith("Times", "bolditalic");
+    expect(doc.setFont).toHaveBeenCalledWith("mock-font", "bolditalic");
+  });
+
+  it("setDocStyle should use jspdfFonts chooser when no explicit font is set", () => {
+    const doc = createMockDoc();
+    const style = ({ ...getDefaultStyle(), ...{ font: null, code: false } });
+
+    setDocStyle(doc, "hello", style);
+
+    expect(jspdfFonts.chooseFontForText).toHaveBeenCalledWith("hello", null);
+    expect(doc.setFont).toHaveBeenCalledWith("mock-font");
   });
 });

@@ -5,14 +5,14 @@ jest.mock("jspdf-autotable", () => ({
 }));
 
 const { processTable } = require("../../helpers/table");
-const { getDefaultStyle } = require("../../helpers/style");
+const { getDefaultStyle } = require("../../helpers/styles");
 const { createMockDoc } = require("../test-utils/mockDoc");
 
 describe("md-to-pdf table helper", () => {
   it("should process table and increase currentHeight", () => {
     const doc = createMockDoc();
     const context = {
-      style: getDefaultStyle({ currentHeight: 70, lineDistance: 10, currentWidth: 60, maxLineWidth: 500 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, lineDistance: 10, currentWidth: 60, maxLineWidth: 500 } }),
       getDoc() {
         return doc;
       },

@@ -1,11 +1,11 @@
 const { breakLine, lineBreak, horizontalLine } = require("../../helpers/lines");
-const { getDefaultStyle } = require("../../helpers/style");
+const { getDefaultStyle } = require("../../helpers/styles");
 const { createMockDoc } = require("../test-utils/mockDoc");
 
 describe("md-to-pdf lines helpers", () => {
   it("breakLine should increase currentHeight and reset cursorIndex", () => {
     const doc = createMockDoc();
-    const style = getDefaultStyle({ currentHeight: 100, currentWidth: 60, cursorIndex: 90 });
+    const style = ({ ...getDefaultStyle(), ...{ currentHeight: 100, currentWidth: 60, cursorIndex: 90 } });
 
     const next = breakLine(doc, 15, style);
 
@@ -16,7 +16,7 @@ describe("md-to-pdf lines helpers", () => {
   it("lineBreak should persist style update into context", () => {
     const doc = createMockDoc();
     const context = {
-      style: getDefaultStyle({ currentHeight: 100 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 100 } }),
       getDoc() {
         return doc;
       },
@@ -36,7 +36,7 @@ describe("md-to-pdf lines helpers", () => {
   it("horizontalLine should draw line and increase currentHeight twice", () => {
     const doc = createMockDoc();
     const context = {
-      style: getDefaultStyle({ currentHeight: 70, lineSpc: 12 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, lineSpc: 12 } }),
       getDoc() {
         return doc;
       },
@@ -60,7 +60,7 @@ describe("md-to-pdf lines helpers", () => {
   it("should move to startHeight when page overflows", () => {
     const doc = createMockDoc();
     const context = {
-      style: getDefaultStyle({ currentHeight: 780, lineSpc: 20, pageHeight: 790, startHeight: 70 }),
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 780, lineSpc: 20, pageHeight: 790, startHeight: 70 } }),
       getDoc() {
         return doc;
       },
