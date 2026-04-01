@@ -179,5 +179,19 @@ describe("link.js helpers", () => {
       expect(mockContext.getCurrentTextRuns()[0]).toBe(before);
       expect(mockContext.getCurrentTextRuns().length).toBeGreaterThan(1);
     });
+
+    it("should fallback href to empty string when href is missing", () => {
+      const token = {
+        tokens: [],
+        title: null,
+      };
+
+      writeLink.call(mockContext, token);
+
+      expect(mockContext.updateStyle).toHaveBeenCalledWith({
+        link: "",
+        textColor: "0000EE",
+      });
+    });
   });
 });

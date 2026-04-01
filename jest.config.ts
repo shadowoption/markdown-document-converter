@@ -2,6 +2,7 @@ import type { Config } from "jest";
 
 const config: Config = {
   testEnvironment: "node",
+  testPathIgnorePatterns: ["/dist/", "/coverage/"],
   transform: {
     "^.+\\.ts$": [
       "ts-jest",
@@ -14,13 +15,14 @@ const config: Config = {
   moduleFileExtensions: ["ts", "js", "json", "node"],
   coverageProvider: "v8",
   collectCoverageFrom: [
-    "**/*.ts",
+    "**/*.{ts,js}",
     "!**/node_modules/**",
     "!dist/**",
     "!coverage/**",
     "!**/tests/**",
     "!**/*.d.ts",
     "!**/types.ts",
+    "!**/jest.config.js",
     "!jest.config.ts",
   ],
 };

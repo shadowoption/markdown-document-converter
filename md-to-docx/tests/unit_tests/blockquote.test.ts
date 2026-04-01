@@ -94,6 +94,13 @@ describe("blockquote.js helpers", () => {
       expect(mockContext.DFS).toHaveBeenCalledWith([]);
     });
 
+    it("should handle missing tokens with fallback empty array", () => {
+      const token = {};
+      writeBlockquote.call(mockContext, token);
+
+      expect(mockContext.DFS).toHaveBeenCalledWith([]);
+    });
+
     it("should group paragraph after processing", () => {
       const token = { tokens: [] };
       writeBlockquote.call(mockContext, token);

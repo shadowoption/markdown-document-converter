@@ -17,7 +17,8 @@
   },
   "include": [
     "index.ts",
-    "md-to-docx/**/*.ts"
+    "md-to-docx/**/*.ts",
+    "md-to-pdf/**/*.ts"
   ],
   "exclude": [
     "node_modules",

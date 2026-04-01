@@ -155,5 +155,22 @@ describe("heading.js helpers", () => {
 
       expect(mockContext.DFS).toHaveBeenCalledWith(nestedTokens);
     });
+
+    it("should handle non-numeric depth with null heading fallback", () => {
+      const token = { depth: "x", tokens: [] };
+      writeHeading.call(mockContext, token);
+
+      expect(mockContext.updateStyle).toHaveBeenCalledWith({
+        headingLevel: null,
+        bold: true,
+      });
+    });
+
+    it("should fallback to empty token list when tokens are missing", () => {
+      const token = { depth: 1 };
+      writeHeading.call(mockContext, token);
+
+      expect(mockContext.DFS).toHaveBeenCalledWith([]);
+    });
   });
 });

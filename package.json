@@ -18,7 +18,7 @@
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "prepare": "npm run build",
-    "test": "jest --coverage"
+    "test": "jest"
   },
   "files": [
     "dist",
@@ -27,6 +27,8 @@
   ],
   "dependencies": {
     "he": "^1.2.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.2",
     "marked": "^17.0.4"
   },
   "peerDependencies": {
