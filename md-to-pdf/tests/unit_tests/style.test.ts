@@ -182,5 +182,16 @@ describe("md-to-pdf style helpers", () => {
 
     expect(jspdfFonts.chooseFontForText).toHaveBeenCalledWith("hello", null);
     expect(doc.setFont).toHaveBeenCalledWith("mock-font");
+    expect(doc.setFont).toHaveBeenCalledWith("mock-font", "normal");
+  });
+
+  it("setDocStyle should reset text style to normal when not bold or italic", () => {
+    const doc = createMockDoc();
+
+    setDocStyle(doc, "first", ({ ...getDefaultStyle(), ...{ bold: true } }));
+    setDocStyle(doc, "second", ({ ...getDefaultStyle(), ...{ bold: false, italics: false } }));
+
+    expect(doc.setFont).toHaveBeenCalledWith("mock-font", "bold");
+    expect(doc.setFont).toHaveBeenCalledWith("mock-font", "normal");
   });
 });
