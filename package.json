@@ -18,7 +18,7 @@
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "prepare": "npm run build",
-    "test": "jest --coverage"
+    "test": "jest"
   },
   "files": [
     "dist",
