@@ -12,7 +12,7 @@
 - API surface: stable root export with:
   - `mdToDocx.convert(text, style?)`
   - `mdToPdf.convert(doc, text, style?)`
-- Build strategy: **build-on-install** (`prepare` runs `npm run build`)
+- Build strategy: **build-and-minify on install** (`prepare` runs `npm run build && npm run minify`)
 
 ## Installation
 
@@ -52,6 +52,25 @@ npm run build:watch
 ```
 
 This keeps `dist/` updated so the linked consumer sees current changes.
+
+### Minifying `dist/` with Terser
+
+The project uses [Terser](https://github.com/terser/terser) to minify all compiled JavaScript files under `dist/`.
+
+```bash
+npm run minify
+```
+
+This runs:
+
+```bash
+find dist -type f -name '*.js' -exec terser '{}' -o '{}' -c -m \;
+```
+
+- `-c` enables compression
+- `-m` enables identifier mangling
+
+The `prepare` script also runs this minification automatically after TypeScript compilation during install/publish flows.
 
 ## API
 
