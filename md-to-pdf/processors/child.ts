@@ -8,6 +8,7 @@ import type {
   MarkdownToPdfContext,
   MarkdownToken,
 } from "../types";
+import { getLiteralTokenText } from "../helpers/text";
 
 export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): void {
   // save current style on stack
@@ -37,8 +38,9 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
     case "hr":
       this.horizontalLine();
       break;
-    // currently not handling HTML tags
+    // Render raw HTML tokens as literal text so content is not silently lost.
     case "html":
+      this.writeText(getLiteralTokenText(token));
       break;
     // image
     case "image":

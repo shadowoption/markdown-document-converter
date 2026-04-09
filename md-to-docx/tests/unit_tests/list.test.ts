@@ -197,12 +197,12 @@ describe("list.js helpers", () => {
       expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
-    it("should write checkbox for task list items", () => {
+    it("should not call writeCheckBox directly for task list items", () => {
       mockContext.writeCheckBox = jest.fn();
       const token = { loose: false, task: true, tokens: [], checked: false };
       writeListItem.call(mockContext, token);
 
-      expect(mockContext.writeCheckBox).toHaveBeenCalled();
+      expect(mockContext.writeCheckBox).not.toHaveBeenCalled();
     });
 
     it("should not write checkbox for non-task items", () => {
@@ -242,18 +242,18 @@ describe("list.js helpers", () => {
       expect(mockContext.DFS).toHaveBeenCalledWith([]);
     });
 
-    it("should handle task list item with checked state", () => {
-      mockContext.writeCheckBox = jest.fn();
+    it("should handle task list item with checked state via DFS", () => {
+      const tokens = [{ type: "checkbox", checked: true }];
       const token = {
         loose: false,
         task: true,
         prefix: "☐ ",
-        tokens: [],
+        tokens,
         checked: true,
       };
       writeListItem.call(mockContext, token);
 
-      expect(mockContext.writeCheckBox).toHaveBeenCalledWith(token);
+      expect(mockContext.DFS).toHaveBeenCalledWith(tokens);
     });
   });
 });

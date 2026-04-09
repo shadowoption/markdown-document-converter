@@ -73,11 +73,11 @@ describe("child.js processors", () => {
       expect(mockContext.lineBreak).toHaveBeenCalled();
     });
 
-    it("should handle html type - not currently supported", () => {
-      const token = { type: "html", text: "<div>content</div>" };
+    it("should render html tokens as literal text", () => {
+      const token = { type: "html", raw: "<div>content</div>" };
       processChild.call(mockContext, token);
 
-      expect(mockContext.writeText).not.toHaveBeenCalled();
+      expect(mockContext.writeText).toHaveBeenCalledWith("<div>content</div>");
     });
 
     it("should handle image type as link", () => {

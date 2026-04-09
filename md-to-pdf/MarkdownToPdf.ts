@@ -19,6 +19,9 @@ import { writeParagraph } from "./helpers/paragraph";
 import { processParent } from "./processors/parent";
 import { processChild } from "./processors/child";
 import { DFS } from "./processors/dfs";
+import he = require("he");
+import marked = require("marked");
+
 
 import type {
   JsPdfDoc,
@@ -36,6 +39,26 @@ import type {
   MarkdownTokensList,
   PdfStyle,
 } from "./types";
+
+function normalizeMarkdownInput(text: string): string {
+  return he.decode(String(text || ""))
+    // Normalize line endings first.
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u2028\u2029]/g, "\n")
+    // Normalize equivalent Unicode spacing characters often produced by HTML-to-text pipelines.
+    .replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, " ")
+    .replace(/\u00AD/g, "")
+    .replace(/[\u2010\u2011\u2212]/g, "-")
+    // Arrow symbols frequently come from HTML entities and can render as
+    // corrupted glyphs in some PDF font paths, so map them to ASCII fallbacks.
+    .replace(/[\u2190\u21D0]/g, "<-")
+    .replace(/[\u2191\u21D1]/g, "^")
+    .replace(/[\u2192\u21D2]/g, "->")
+    .replace(/[\u2193\u21D3]/g, "v")
+    .replace(/[\u2194\u21D4]/g, "<->")
+    // Drop invisible/control characters that commonly corrupt markdown parsing.
+    .replace(/[\u0000\u200B\u2060\uFEFF]/g, "");
+}
 
 export class MarkdownToPdf {
   private doc: JsPdfDoc | null;
@@ -142,8 +165,67 @@ export class MarkdownToPdf {
   }
 
   convert(doc: JsPdfDoc, text: string): number {
-    const marked = require("marked");
-    const he = require("he");
+    // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
+    /*
+    const exampleTokens = [
+      {
+        type: 'heading',
+        raw: '## Emphasis\n\n',
+        depth: 2,
+        text: 'Emphasis',
+        tokens: [
+          {
+            type: 'text',
+            raw: '## Emphasis\n\n',
+            text: 'Emphasis',
+            escaped: false
+          }
+        ]
+      },
+      {
+        type: 'paragraph',
+        raw: '**This is bold text**',
+        text: '**This is bold text**',
+        tokens: [
+          {
+            type: 'strong',
+            raw: '**This is bold text**',
+            text: 'This is bold text',
+            tokens: [
+              {
+                type: 'text',
+                raw: 'This is bold text',
+                text: 'This is bold text',
+                escaped: false
+              }
+            ]
+          }
+        ]
+      },
+      { type: 'space', raw: '\n\n' },
+      {
+        type: 'paragraph',
+        raw: '*This is italic text*',
+        text: '*This is italic text*',
+        tokens: [
+          {
+            type: 'em',
+            raw: '*This is italic text*',
+            text: 'This is italic text',
+            tokens: [
+              {
+                type: 'text',
+                raw: 'This is italic text',
+                text: 'This is italic text',
+                escaped: false
+              }
+            ]
+          }
+        ]
+      },
+    ]
+      */
+    const normalizedText = normalizeMarkdownInput(text);
 
     // set the active document and reset traversal style stack
     this.setDoc(doc);
@@ -153,7 +235,7 @@ export class MarkdownToPdf {
     });
 
     // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
-    const tokens: MarkdownTokensList = marked.lexer(text, { gfm: true, breaks: true });
+    const tokens: MarkdownTokensList = marked.lexer(normalizedText, { gfm: true, breaks: true });
 
     // decode HTML text and split code lines
     marked.walkTokens(tokens, (token: MarkdownToken) => {

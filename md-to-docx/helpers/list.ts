@@ -41,9 +41,6 @@ export function writeListItem(this: MarkdownToDocxContext, token: MarkdownListIt
   if (token.loose) {
     this.lineBreak();
   }
-  if (token.task) {
-    this.writeCheckBox(token);
-  }
   this.writeText(String(token.prefix || ""));
   this.DFS(token.tokens || []);
 }

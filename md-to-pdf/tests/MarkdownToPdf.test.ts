@@ -7,8 +7,8 @@ jest.mock("he", () => ({
   decode: jest.fn((text) => text),
 }));
 
-const marked = require("marked");
 const he = require("he");
+import marked = require("marked");
 const { MarkdownToPdf } = require("../MarkdownToPdf");
 const { createMockDoc } = require("./test-utils/mockDoc");
 
@@ -58,6 +58,45 @@ describe("MarkdownToPdf class", () => {
     pdf.convert(doc, "hello");
 
     expect(marked.lexer).toHaveBeenCalledWith("hello", { gfm: true, breaks: true });
+  });
+
+  it("should normalize markdown text and html whitespace entities before parsing", () => {
+    const realHe = jest.requireActual("he");
+    he.decode.mockImplementation(realHe.decode);
+
+    const pdf = new MarkdownToPdf();
+    const doc = createMockDoc();
+
+    pdf.convert(doc, "A&nbsp;B&#x202F;C&#8209;D&shy;E&#10;F\r\nG\u200B\u2060\uFEFF\u0000");
+
+    expect(marked.lexer).toHaveBeenCalledWith("A B C-DE\nF\nG", { gfm: true, breaks: true });
+  });
+
+  it("should normalize arrow entities to ASCII fallbacks before parsing", () => {
+    const realHe = jest.requireActual("he");
+    he.decode.mockImplementation(realHe.decode);
+
+    const pdf = new MarkdownToPdf();
+    const doc = createMockDoc();
+
+    pdf.convert(doc, "Arrows: &larr; &uarr; &rarr; &darr; &harr;");
+
+    expect(marked.lexer).toHaveBeenCalledWith("Arrows: <- ^ -> v <->", { gfm: true, breaks: true });
+  });
+
+  it("should normalize thin and non-breaking spaces before parsing", () => {
+    const realHe = jest.requireActual("he");
+    he.decode.mockImplementation(realHe.decode);
+
+    const pdf = new MarkdownToPdf();
+    const doc = createMockDoc();
+
+    pdf.convert(doc, "This quote contains entities like &amp; &nbsp; &thinsp; and unicode punctuation.");
+
+    const normalizedInput = marked.lexer.mock.calls[0][0];
+    expect(normalizedInput).toContain("This quote contains entities like &");
+    expect(normalizedInput).toContain("and unicode punctuation.");
+    expect(normalizedInput).not.toMatch(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/);
   });
 
   it("should decode token text and split code lines", () => {
