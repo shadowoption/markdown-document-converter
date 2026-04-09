@@ -41,6 +41,26 @@ import type {
   MarkdownTokensList,
 } from "./types";
 
+function normalizeMarkdownInput(text: string): string {
+  return he.decode(String(text || ""))
+    // Normalize line endings first.
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u2028\u2029]/g, "\n")
+    // Normalize equivalent Unicode spacing characters often produced by HTML-to-text pipelines.
+    .replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, " ")
+    .replace(/\u00AD/g, "")
+    .replace(/[\u2010\u2011\u2212]/g, "-")
+    // Arrow symbols frequently come from HTML entities and can render as
+    // corrupted glyphs in some PDF font paths, so map them to ASCII fallbacks.
+    .replace(/[\u2190\u21D0]/g, "<-")
+    .replace(/[\u2191\u21D1]/g, "^")
+    .replace(/[\u2192\u21D2]/g, "->")
+    .replace(/[\u2193\u21D3]/g, "v")
+    .replace(/[\u2194\u21D4]/g, "<->")
+    // Drop invisible/control characters that commonly corrupt markdown parsing.
+    .replace(/[\u0000\u200B\u2060\uFEFF]/g, "");
+}
+
 export class MarkdownToDocx {
   private currentTextRuns: DocxParagraphChild[];
   private paragraphs: DocxBlock[];
@@ -224,7 +244,8 @@ export class MarkdownToDocx {
       },
     ]
       */
-    const tokens: MarkdownTokensList = marked.lexer(text, { gfm: true, breaks: true });
+    const normalizedText = normalizeMarkdownInput(text);
+    const tokens: MarkdownTokensList = marked.lexer(normalizedText, { gfm: true, breaks: true });
 
     // decode HTML text and split code lines
     marked.walkTokens(tokens, (token: MarkdownToken) => {

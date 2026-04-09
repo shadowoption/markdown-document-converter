@@ -26,6 +26,7 @@ jest.mock("he", () => ({
 
 const createMdToPdf = require("../../index");
 const { createMockDoc } = require("../test-utils/mockDoc");
+const marked = require("marked");
 
 describe("integration: markdown to pdf", () => {
   it("should render markdown tokens and increase currentHeight for line breaks", () => {
@@ -55,5 +56,43 @@ describe("integration: markdown to pdf", () => {
     const renderedTexts = doc.text.mock.calls.map((call) => String(call[0]));
     expect(renderedTexts.some((text) => text.includes("1."))).toBe(true);
     expect(renderedTexts.some((text) => text.includes("Item"))).toBe(true);
+  });
+
+  it("should draw code block borders as per-page segments when content spans pages", () => {
+    marked.lexer.mockImplementationOnce(() => [
+      {
+        type: "code",
+        text: "l1\nl2\nl3\nl4\nl5",
+      },
+    ]);
+
+    let currentPage = 1;
+    const doc = createMockDoc({
+      addPage: jest.fn(() => {
+        currentPage += 1;
+      }),
+      getCurrentPageInfo: jest.fn(() => ({ pageNumber: currentPage })),
+      setPage: jest.fn((page) => {
+        currentPage = page;
+      }),
+    });
+
+    const api = createMdToPdf();
+    api.convert(doc, "```\ncode\n```", {
+      currentHeight: 70,
+      startHeight: 70,
+      pageHeight: 120,
+      lineDistance: 10,
+      lineSpc: 18,
+      currentWidth: 60,
+      startWidth: 60,
+      maxLineWidth: 500,
+    });
+
+    expect(doc.rect).toHaveBeenCalledTimes(2);
+    expect(doc.rect).toHaveBeenNthCalledWith(1, 60, 70, 440, 50);
+    expect(doc.rect).toHaveBeenNthCalledWith(2, 60, 52, 440, 48);
+    expect(doc.rect.mock.calls[1][1]).toBeLessThan(70);
+    expect(doc.rect.mock.calls[1][3]).toBeLessThan(50);
   });
 });

@@ -68,4 +68,37 @@ describe("md-to-pdf heading helper", () => {
 
     expect(context.DFS).toHaveBeenCalledWith([]);
   });
+
+  it("should increase heading line spacing for wrapped headings", () => {
+    const context = {
+      style: ({ ...getDefaultStyle(), ...{ currentHeight: 70, fontSize: 10, bold: false, lineSpc: 18 } }),
+      styleStack: [],
+      getStyle() {
+        return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
+      },
+      updateStyle(partial) {
+        this.style = { ...this.style, ...partial };
+      },
+      pushStyle,
+      popStyle,
+      lineBreak: jest.fn(function(distance) {
+        this.style.currentHeight += distance;
+      }),
+      DFS: jest.fn(),
+    };
+
+    writeHeading.call(context, { depth: 1, tokens: [] });
+
+    // depth 1 => fontSize 28 => lineSpc should scale above default body spacing.
+    expect(context.style.lineSpc).toBeGreaterThan(18);
+  });
 });
