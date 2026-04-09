@@ -53,6 +53,25 @@ npm run build:watch
 
 This keeps `dist/` updated so the linked consumer sees current changes.
 
+### Minifying `dist/` with Terser
+
+The project uses [Terser](https://github.com/terser/terser) to minify all compiled JavaScript files under `dist/`.
+
+```bash
+npm run minify
+```
+
+This runs:
+
+```bash
+find dist -type f -name '*.js' -exec terser '{}' -o '{}' -c -m \;
+```
+
+- `-c` enables compression
+- `-m` enables identifier mangling
+
+The `prepare` script also runs this minification automatically after TypeScript compilation during install/publish flows.
+
 ## API
 
 ### Root export
@@ -305,8 +324,8 @@ Both converters support:
   - `marked`
   - `he`
   - `jspdf-autotable`
-  - `docx` (peer dependency for DOCX output)
-- Consumer dependencies:
+- Peer dependencies (installed by consumer):
+  - `docx` (required when using `mdToDocx`)
   - `jspdf` (required when using `mdToPdf`)
 - Dev:
   - `typescript`
@@ -322,4 +341,26 @@ Both converters support:
 - Complex deeply nested markdown can still surface edge cases.
 - Raw HTML content is not rendered as rich DOCX/PDF HTML.
 - Images are currently routed through link handling rather than direct image embedding.
+- This package declares `docx` and `jspdf` as peer dependencies, so the consuming project controls exact versions.
 - `mdToPdf` expects a compatible `jsPDF` document instance to be provided by the consumer.
+
+### Language Coverage (DOCX and PDF)
+
+Both DOCX and PDF outputs support the following languages/scripts:
+
+- Latin
+- Arabic
+- Cyrillic
+- Chinese
+- Devanagari
+- Hebrew
+- Korean
+- Japanese
+- Georgian
+- Tamil
+- Thai
+
+Emoji support differs by output:
+
+- DOCX supports emojis.
+- PDF text rendering does not support emoji glyphs.

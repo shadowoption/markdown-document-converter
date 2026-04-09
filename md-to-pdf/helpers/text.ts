@@ -1,5 +1,22 @@
 import { checkHeight } from "./styles";
-import type { MarkdownCheckboxToken, MarkdownListItemToken, MarkdownToPdfContext, PdfStyle } from "../types";
+import type {
+  MarkdownCheckboxToken,
+  MarkdownListItemToken,
+  MarkdownToPdfContext,
+  MarkdownToken,
+  PdfStyle,
+} from "../types";
+
+export function getLiteralTokenText(token: MarkdownToken): string {
+  if ("raw" in token && token.raw !== undefined && typeof token.raw === "string") {
+    return token.raw;
+  }
+  if ("text" in token && token.text !== undefined && typeof token.text === "string") {
+    return token.text;
+  }
+
+  return "";
+}
 
 export function writePrefix(
   this: MarkdownToPdfContext,
@@ -27,7 +44,7 @@ export function writeText(this: MarkdownToPdfContext, text: string): PdfStyle {
   for (const piece of splitText) {
     // Guard for long fragments that still exceed width after splitting.
     if (style.cursorIndex + doc.getTextWidth(piece) > style.maxLineWidth) {
-      style.currentHeight += style.lineSpc;
+      style.currentHeight += style.lineDistance;
       style.cursorIndex = style.currentWidth;
     }
 

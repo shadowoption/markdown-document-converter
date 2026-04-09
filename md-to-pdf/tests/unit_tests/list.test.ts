@@ -124,7 +124,7 @@ describe("md-to-pdf list helpers", () => {
 
     expect(context.lineBreak).toHaveBeenCalledWith(10);
     expect(context.style.currentHeight).toBeGreaterThan(before);
-    expect(token.prefix).toBe("1. [ ] ");
+    expect(token.prefix).toBe("1. ");
     expect(context.style.skipParagraphBreak).toBe(true);
   });
 
@@ -162,6 +162,46 @@ describe("md-to-pdf list helpers", () => {
 
     expect(token.items[0].prefix).toBe("• ");
     expect(token.items[1].prefix).toBe("• ");
+  });
+
+  it("writeList should break line when starting from mid-line cursor", () => {
+    const style = ({ ...getDefaultStyle(), ...{ currentWidth: 60, cursorIndex: 90, currentHeight: 80, indent: 8 } });
+    const context = {
+      style,
+      styleStack: [],
+      getStyle() {
+        return this.style;
+      },
+      setStyle(next) {
+        this.style = next;
+      },
+      getStyleStack() {
+        return this.styleStack;
+      },
+      setStyleStack(next) {
+        this.styleStack = next;
+      },
+      updateStyle(partial) {
+        this.style = { ...this.style, ...partial };
+      },
+      lineBreak: jest.fn(function(distance) {
+        this.style.currentHeight += distance;
+        this.style.cursorIndex = this.style.currentWidth;
+      }),
+      pushStyle,
+      popStyle,
+      DFS: jest.fn(),
+    };
+
+    const token = {
+      ordered: false,
+      items: [{ tokens: [] }],
+    };
+
+    writeList.call(context, token);
+
+    expect(context.lineBreak).toHaveBeenCalledWith(context.style.lineDistance);
+    expect(token.items[0].prefix).toBe("• ");
   });
 
   it("writeListItem should not append checkbox prefix when task is false", () => {

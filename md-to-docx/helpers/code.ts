@@ -3,10 +3,7 @@ import type { MarkdownCodeSpanToken, MarkdownCodeToken, MarkdownToDocxContext } 
 export function writeCode(this: MarkdownToDocxContext, token: MarkdownCodeToken): void {
   this.groupParagraph();
   this.updateStyle({ font: "Consolas", code: true });
-
-  if (token.codeBlockStyle) {
-    this.updateStyle({ indentLevel: this.style.indentLevel + 1 });
-  }
+  this.updateStyle({ indentLevel: this.style.indentLevel + 1 });
 
   for (const line of token.lines || []) {
     this.writeText(String(line));

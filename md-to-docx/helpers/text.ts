@@ -1,6 +1,17 @@
 import docx = require("./docx");
 import type { IRunOptions } from "docx";
-import type { MarkdownToDocxContext } from "../types";
+import type { MarkdownToDocxContext, MarkdownToken } from "../types";
+
+export function getLiteralTokenText(token: MarkdownToken): string {
+  if ("raw" in token && token.raw !== undefined && typeof token.raw === "string") {
+    return token.raw;
+  }
+  if ("text" in token && token.text !== undefined && typeof token.text === "string") {
+    return token.text;
+  }
+
+  return "";
+}
 
 export function writeText(this: MarkdownToDocxContext, text: string): void {
   const currentTextRuns = this.getCurrentTextRuns();

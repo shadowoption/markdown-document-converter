@@ -64,4 +64,10 @@ describe("md-to-pdf child processor", () => {
 
     expect(context.writeText).toHaveBeenCalledWith("hello");
   });
+
+  it("should render html tokens as literal text", () => {
+    processChild.call(context, { type: "html", raw: "<div class=\"note\">x</div>" });
+
+    expect(context.writeText).toHaveBeenCalledWith("<div class=\"note\">x</div>");
+  });
 });
