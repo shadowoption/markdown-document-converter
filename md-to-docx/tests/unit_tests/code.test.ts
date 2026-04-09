@@ -83,12 +83,15 @@ describe("code.js helpers", () => {
       );
     });
 
-    it("should not increment indent level when codeBlockStyle is false", () => {
+    it("should increment indent level when codeBlockStyle is false", () => {
       const token = { lines: ["code"], codeBlockStyle: false };
       writeCode.call(mockContext, token);
 
-      const callArgs = mockContext.updateStyle.mock.calls[0][0];
-      expect(callArgs.indentLevel).toBeUndefined();
+      expect(mockContext.updateStyle).toHaveBeenCalledWith(
+        expect.objectContaining({
+          indentLevel: 1,
+        })
+      );
     });
 
     it("should handle empty lines array", () => {
