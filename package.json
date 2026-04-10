@@ -1,6 +1,6 @@
 {
   "name": "markdown-document-converter",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Convert Markdown text to Microsoft Word (.docx) documents.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "minify": "find dist -type f -name '*.js' -exec terser '{}' -o '{}' -c -m \\;",
+    "minify": "find dist -type f -name \"*.js\" -exec terser {} -o {} -c -m \\;",
     "prepare": "npm run build && npm run minify",
     "test": "jest"
   },

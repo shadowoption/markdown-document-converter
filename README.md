@@ -64,7 +64,7 @@ npm run minify
 This runs:
 
 ```bash
-find dist -type f -name '*.js' -exec terser '{}' -o '{}' -c -m \;
+find dist -type f -name "*.js" -exec terser {} -o {} -c -m \;
 ```
 
 - `-c` enables compression
