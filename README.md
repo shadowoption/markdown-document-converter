@@ -12,7 +12,7 @@
 - API surface: stable root export with:
   - `mdToDocx.convert(text, style?)`
   - `mdToPdf.convert(doc, text, style?)`
-- Build strategy: **build-on-install** (`prepare` runs `npm run build`)
+- Build strategy: **build-and-minify on install** (`prepare` runs `npm run build && npm run minify`)
 
 ## Installation
 
