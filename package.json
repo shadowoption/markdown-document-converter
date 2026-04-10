@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "minify": "find dist -type f -name \"*.js\" -exec terser {} -o {} -c -m \\;",
+    "minify": "node scripts/minify-dist.js",
     "prepare": "npm run build && npm run minify",
     "test": "jest"
   },
