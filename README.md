@@ -55,22 +55,24 @@ This keeps `dist/` updated so the linked consumer sees current changes.
 
 ### Minifying `dist/` with Terser
 
-The project uses [Terser](https://github.com/terser/terser) to minify all compiled JavaScript files under `dist/`.
+The project uses [Terser](https://github.com/terser/terser) to minify all compiled JavaScript files under `dist/`. Run minification with:
 
 ```bash
 npm run minify
 ```
 
-This runs:
+This executes `scripts/minify-dist.js`, which:
 
-```bash
-find dist -type f -name "*.js" -exec terser {} -o {} -c -m \;
-```
+1. **Walks all directories** under `dist/` recursively
+2. **Finds all `.js` files** (excluding already minified `.min.js` files)
+3. **Applies Terser minification** with the following options:
+   - `compress: true` — removes dead code and simplifies expressions
+   - `mangle: true` — shortens variable/function names to reduce file size
+   - `format: { comments: false }` — strips comments from output
 
-- `-c` enables compression
-- `-m` enables identifier mangling
+The minified code is written back to the original file, reducing file sizes without creating separate `.min.js` versions.
 
-The `prepare` script also runs this minification automatically after TypeScript compilation during install/publish flows.
+The `prepare` script also runs this minification automatically after TypeScript compilation during `npm install` or publish workflows.
 
 ## API
 
