@@ -81,7 +81,6 @@ export interface MarkdownToPdfContext {
   writeListItem: (token: MarkdownListItemToken) => void;
   writeCode: (token: MarkdownCodeToken) => void;
   writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
-  writeHtml: (token: MarkdownToken) => void;
   writeBlockquote: (token: MarkdownBlockquoteToken) => void;
   writeHeading: (token: MarkdownHeadingToken) => void;
   writeParagraph: (token: MarkdownParagraphToken) => void;

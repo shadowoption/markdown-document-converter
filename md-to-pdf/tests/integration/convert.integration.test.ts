@@ -131,12 +131,14 @@ describe("integration: markdown to pdf", () => {
       lineSpc: 18,
     });
 
-    const htmlCall = doc.text.mock.calls.find((call) => String(call[0]).includes("</div>"));
+    // expandBlockHtmlTokens expands the html token into a paragraph whose text
+    // is the raw tag string, followed by a space token for the blank line.
+    const divCall = doc.text.mock.calls.find((call) => String(call[0]).includes("</div>"));
     const paragraphCall = doc.text.mock.calls.find((call) => String(call[0]) === "This is text");
 
-    expect(htmlCall).toBeDefined();
+    expect(divCall).toBeDefined();
     expect(paragraphCall).toBeDefined();
-    expect(paragraphCall[2] - htmlCall[2]).toBe(20);
+    expect(paragraphCall[2] - divCall[2]).toBe(20);
   });
 
   it("should not insert an extra blank line before nested list items", () => {
