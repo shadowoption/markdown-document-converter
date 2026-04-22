@@ -10,8 +10,8 @@ export type MarkdownCheckboxToken = (Tokens.Checkbox | Tokens.ListItem) & {
   prefix?: string;
   checked?: boolean;
 };
-export type MarkdownListToken = Tokens.List;
 export type MarkdownListItemToken = Tokens.ListItem & { prefix?: string };
+export type MarkdownListToken = Omit<Tokens.List, "items"> & { items: MarkdownListItemToken[] };
 export type MarkdownCodeSpanToken = Tokens.Codespan;
 export type MarkdownCodeToken = Tokens.Code & { lines?: string[] };
 export type MarkdownTableToken = Tokens.Table;
@@ -69,6 +69,7 @@ export interface MarkdownToPdfContext {
   popStyle: () => void;
   updateStyle: (partial?: Partial<PdfStyle>) => void;
   setTextStyle: (type: string) => void;
+  getSpaceBreakCount: (token: MarkdownToken) => number;
   writeText: (text: string) => PdfStyle;
   writePrefix: (token: MarkdownListItemToken | MarkdownCheckboxToken) => PdfStyle;
   lineBreak: (distance: number) => void;
@@ -80,6 +81,7 @@ export interface MarkdownToPdfContext {
   writeListItem: (token: MarkdownListItemToken) => void;
   writeCode: (token: MarkdownCodeToken) => void;
   writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
+  writeHtml: (token: MarkdownToken) => void;
   writeBlockquote: (token: MarkdownBlockquoteToken) => void;
   writeHeading: (token: MarkdownHeadingToken) => void;
   writeParagraph: (token: MarkdownParagraphToken) => void;

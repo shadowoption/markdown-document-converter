@@ -69,7 +69,7 @@ describe("code.js helpers", () => {
       const token = { lines, codeBlockStyle: false };
       writeCode.call(mockContext, token);
 
-      expect(mockContext.lineBreak).toHaveBeenCalledTimes(2);
+      expect(mockContext.lineBreak).toHaveBeenCalledTimes(3);
     });
 
     it("should increment indent level when codeBlockStyle is true", () => {
@@ -99,7 +99,7 @@ describe("code.js helpers", () => {
       writeCode.call(mockContext, token);
 
       expect(mockContext.writeText).not.toHaveBeenCalled();
-      expect(mockContext.lineBreak).not.toHaveBeenCalled();
+      expect(mockContext.lineBreak).toHaveBeenCalledTimes(1);
     });
   });
 

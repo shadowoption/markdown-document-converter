@@ -43,7 +43,9 @@ describe("MarkdownToPdf class", () => {
     expect(typeof pdf.popStyle).toBe("function");
     expect(typeof pdf.updateStyle).toBe("function");
     expect(typeof pdf.setTextStyle).toBe("function");
+    expect(typeof pdf.getSpaceBreakCount).toBe("function");
     expect(typeof pdf.writeText).toBe("function");
+    expect(typeof pdf.writeHtml).toBe("function");
     expect(typeof pdf.lineBreak).toBe("function");
     expect(typeof pdf.horizontalLine).toBe("function");
     expect(typeof pdf.processParent).toBe("function");

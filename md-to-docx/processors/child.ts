@@ -8,7 +8,7 @@ import type {
   MarkdownToDocxContext,
   MarkdownToken,
 } from "../types";
-import { getLiteralTokenText } from "../helpers/text";
+import { getLiteralTokenText } from "../helpers/html";
 
 export function processChild(this: MarkdownToDocxContext, token: MarkdownToken): void {
   // save current style on stack
@@ -53,9 +53,15 @@ export function processChild(this: MarkdownToDocxContext, token: MarkdownToken):
       this.writeList(token as MarkdownListToken);
       break;
     // space
-    case "space":
-      this.lineBreak();
+    case "space": {
+      // Preserve explicit blank-line runs by expanding the raw newline count.
+      const breakCount = this.getSpaceBreakCount(token);
+
+      for (let i = 0; i < breakCount; i += 1) {
+        this.lineBreak();
+      }
       break;
+    }
     // table
     case "table":
       this.groupParagraph();

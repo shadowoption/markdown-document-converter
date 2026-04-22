@@ -8,7 +8,6 @@ import type {
   MarkdownToPdfContext,
   MarkdownToken,
 } from "../types";
-import { getLiteralTokenText } from "../helpers/text";
 
 export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): void {
   // save current style on stack
@@ -39,9 +38,10 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
       this.horizontalLine();
       break;
     // Render raw HTML tokens as literal text so content is not silently lost.
-    case "html":
-      this.writeText(getLiteralTokenText(token));
+    case "html": {
+      this.writeHtml(token);
       break;
+    }
     // image
     case "image":
       this.writeLink(token as MarkdownLinkToken);
@@ -51,9 +51,15 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
       this.writeList(token as MarkdownListToken);
       break;
     // space
-    case "space":
-      this.lineBreak(this.getStyle().lineDistance);
+    case "space": {
+      // Preserve explicit blank-line runs by expanding the raw newline count.
+      const breakCount = this.getSpaceBreakCount(token);
+
+      for (let i = 0; i < breakCount; i += 1) {
+        this.lineBreak(this.getStyle().lineDistance);
+      }
       break;
+    }
     // table
     case "table":
       this.processTable(token as MarkdownTableToken);

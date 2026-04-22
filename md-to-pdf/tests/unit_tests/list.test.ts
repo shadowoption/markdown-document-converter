@@ -65,7 +65,7 @@ describe("md-to-pdf list helpers", () => {
     expect(context.DFS).toHaveBeenCalledTimes(2);
   });
 
-  it("writeList should default ordered start to 1 when start is invalid", () => {
+  it("writeList should preserve ordered start when it is zero", () => {
     const style = ({ ...getDefaultStyle(), ...{ currentWidth: 60, cursorIndex: 60, currentHeight: 80, indent: 8 } });
     const context = {
       style,
@@ -92,16 +92,16 @@ describe("md-to-pdf list helpers", () => {
 
     const token = {
       ordered: true,
-      start: "NaN",
+      start: 0,
       items: [{ tokens: [] }],
     };
 
     writeList.call(context, token);
 
-    expect(token.items[0].prefix).toBe("1. ");
+    expect(token.items[0].prefix).toBe("0. ");
   });
 
-  it("writeListItem should create line break and set skipParagraphBreak", () => {
+  it("writeListItem should create line break and set skipParagraphBreak for paragraph items", () => {
     const context = {
       style: ({ ...getDefaultStyle(), ...{ lineDistance: 10, lineSpc: 18 } }),
       getStyle() {
@@ -118,7 +118,13 @@ describe("md-to-pdf list helpers", () => {
     };
 
     const before = context.style.currentHeight;
-    const token = { loose: false, task: true, checked: false, prefix: "1. ", tokens: [] };
+    const token = {
+      loose: false,
+      task: true,
+      checked: false,
+      prefix: "1. ",
+      tokens: [{ type: "paragraph", tokens: [] }],
+    };
 
     writeListItem.call(context, token);
 
@@ -126,6 +132,34 @@ describe("md-to-pdf list helpers", () => {
     expect(context.style.currentHeight).toBeGreaterThan(before);
     expect(token.prefix).toBe("1. ");
     expect(context.style.skipParagraphBreak).toBe(true);
+  });
+
+  it("writeListItem should not set skipParagraphBreak for non-paragraph item starts", () => {
+    const context = {
+      style: ({ ...getDefaultStyle(), ...{ lineDistance: 10, lineSpc: 18 } }),
+      getStyle() {
+        return this.style;
+      },
+      lineBreak: jest.fn(function(distance) {
+        this.style.currentHeight += distance;
+      }),
+      writePrefix: jest.fn(),
+      updateStyle(partial) {
+        this.style = { ...this.style, ...partial };
+      },
+      DFS: jest.fn(),
+    };
+
+    const token = {
+      loose: false,
+      task: false,
+      prefix: "\u2022 ",
+      tokens: [{ type: "text", text: "Item" }],
+    };
+
+    writeListItem.call(context, token);
+
+    expect(context.style.skipParagraphBreak).toBe(false);
   });
 
   it("writeList should set bullet prefixes for unordered list", () => {
@@ -164,7 +198,7 @@ describe("md-to-pdf list helpers", () => {
     expect(token.items[1].prefix).toBe("• ");
   });
 
-  it("writeList should break line when starting from mid-line cursor", () => {
+  it("writeList should not add an extra pre-list line break from mid-line cursor", () => {
     const style = ({ ...getDefaultStyle(), ...{ currentWidth: 60, cursorIndex: 90, currentHeight: 80, indent: 8 } });
     const context = {
       style,
@@ -200,7 +234,7 @@ describe("md-to-pdf list helpers", () => {
 
     writeList.call(context, token);
 
-    expect(context.lineBreak).toHaveBeenCalledWith(context.style.lineDistance);
+    expect(context.lineBreak).not.toHaveBeenCalled();
     expect(token.items[0].prefix).toBe("• ");
   });
 

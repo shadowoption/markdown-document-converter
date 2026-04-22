@@ -1,7 +1,7 @@
 import docx = require("./docx");
-import type { DocxHeadingLevel, MarkdownStyle, MarkdownToDocxContext } from "../types";
+import type { DocxHeadingLevel, MarkdownStyle, MarkdownToDocxContext, MarkdownToken } from "../types";
 
-const _DEFAULT_STYLE: MarkdownStyle = {
+const DEFAULT_STYLE: MarkdownStyle = {
   font: "Arial",
   textColor: "333333",
   linkColor: "0000EE",
@@ -29,7 +29,7 @@ const _HEADING_MAP: Array<DocxHeadingLevel | null> = [
 ];
 
 export function getDefaultStyle(): MarkdownStyle {
-  return { ..._DEFAULT_STYLE };
+  return { ...DEFAULT_STYLE };
 }
 
 export function getHeadingMap(): Array<DocxHeadingLevel | null> {
@@ -77,4 +77,18 @@ export function setTextStyle(this: MarkdownToDocxContext, type: string): void {
     default:
       break;
   }
+}
+
+export function getSpaceBreakCount(this: MarkdownToDocxContext, token: MarkdownToken): number {
+  if (token.type !== "space") {
+    return 1;
+  }
+
+  // Marked encodes a single blank line between blocks as raw "\n\n". The
+  // following block renderer already adds its own leading break, so convert raw
+  // newline count into blank-line count to avoid double-spacing.
+  const raw = "raw" in token && typeof token.raw === "string" ? token.raw : "";
+  const newlineCount = (raw.match(/\n/g) || []).length;
+
+  return Math.max(1, newlineCount - 1);
 }

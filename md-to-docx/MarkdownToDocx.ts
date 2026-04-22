@@ -8,6 +8,7 @@ import {
   popStyle,
   updateStyle,
   setTextStyle,
+  getSpaceBreakCount,
 } from "./helpers/styles";
 import { writeText } from "./helpers/text";
 import { horizontalLine, lineBreak } from "./helpers/lines";
@@ -71,6 +72,7 @@ export class MarkdownToDocx {
   public popStyle: () => void;
   public updateStyle: (partial?: Partial<MarkdownStyle>) => void;
   public setTextStyle: (type: string) => void;
+  public getSpaceBreakCount: (token: MarkdownToken) => number;
   public writeText: (text: string) => void;
   public lineBreak: () => void;
   public groupParagraph: () => void;
@@ -104,6 +106,7 @@ export class MarkdownToDocx {
     this.popStyle = popStyle.bind(this);
     this.updateStyle = updateStyle.bind(this);
     this.setTextStyle = setTextStyle.bind(this);
+    this.getSpaceBreakCount = getSpaceBreakCount.bind(this);
     this.writeText = writeText.bind(this);
     this.lineBreak = lineBreak.bind(this);
     this.groupParagraph = groupParagraph.bind(this);
