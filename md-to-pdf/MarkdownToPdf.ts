@@ -13,7 +13,7 @@ import { processTable } from "./helpers/table";
 import { writeCheckBox, writeList, writeListItem } from "./helpers/list";
 import { writeCode, writeCodeSpan } from "./helpers/code";
 import { writeBlockquote } from "./helpers/blockquote";
-import { writeHtml } from "./helpers/html";
+import { expandBlockHtmlTokens } from "./helpers/html";
 import { writeHeading } from "./helpers/heading";
 import { writeLink } from "./helpers/link";
 import { writeParagraph } from "./helpers/paragraph";
@@ -83,7 +83,6 @@ export class MarkdownToPdf {
   public writeListItem: (token: MarkdownListItemToken) => void;
   public writeCode: (token: MarkdownCodeToken) => void;
   public writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
-  public writeHtml: (token: MarkdownToken) => void;
   public writeBlockquote: (token: MarkdownBlockquoteToken) => void;
   public writeHeading: (token: MarkdownHeadingToken) => void;
   public writeParagraph: (token: MarkdownParagraphToken) => void;
@@ -118,7 +117,6 @@ export class MarkdownToPdf {
     this.writeListItem = writeListItem.bind(this);
     this.writeCode = writeCode.bind(this);
     this.writeCodeSpan = writeCodeSpan.bind(this);
-    this.writeHtml = writeHtml.bind(this);
     this.writeBlockquote = writeBlockquote.bind(this);
     this.writeHeading = writeHeading.bind(this);
     this.writeLink = writeLink.bind(this);
@@ -242,6 +240,10 @@ export class MarkdownToPdf {
 
     // parse markdown text into tokens using marked (with GitHub-flavoured Markdown and line breaks enabled)
     const tokens: MarkdownTokensList = marked.lexer(normalizedText, { gfm: true, breaks: true });
+
+    // Expand greedy block HTML tokens into individual paragraph tokens so line
+    // structure is preserved in the PDF layout.
+    expandBlockHtmlTokens(tokens);
 
     // decode HTML text and split code lines
     marked.walkTokens(tokens, (token: MarkdownToken) => {

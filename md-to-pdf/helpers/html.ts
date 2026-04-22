@@ -1,4 +1,4 @@
-import type { MarkdownToPdfContext, MarkdownToken } from "../types";
+import type { MarkdownToken } from "../types";
 
 export function getLiteralTokenText(token: MarkdownToken): string {
   if ("raw" in token && token.raw && typeof token.raw === "string") {
@@ -11,27 +11,45 @@ export function getLiteralTokenText(token: MarkdownToken): string {
   return "";
 }
 
-function getTrailingNewlineCount(raw: string): number {
-  // Only trailing newlines matter for spacing after a rendered HTML block.
-  const match = String(raw || "").match(/\n+$/);
-
-  return match ? match[0].length : 0;
+function isBlockHtml(token: MarkdownToken): boolean {
+  return token.type === "html" && "block" in token && Boolean((token as Record<string, unknown>).block);
 }
 
-export function writeHtml(this: MarkdownToPdfContext, token: MarkdownToken): void {
-  // Keep raw HTML visible in output instead of dropping unsupported tokens.
-  const rawText = getLiteralTokenText(token);
-  this.writeText(rawText);
+function toParagraph(line: string): MarkdownToken {
+  return {
+    type: "paragraph" as const,
+    raw: line,
+    text: line,
+    tokens: [{ type: "text" as const, raw: line, text: line, escaped: false }],
+  };
+}
 
-  // Block HTML tokens can carry trailing newlines in `raw`. Preserve blank
-  // lines that would otherwise be lost when rendered as literal text.
-  const isBlockHtml = "block" in token && Boolean((token as any).block);
-  if (isBlockHtml) {
-    const trailingNewlines = getTrailingNewlineCount(rawText);
-    const extraBreaks = Math.max(0, trailingNewlines - 1);
+// One space token per blank line, using "\n\n" to match Marked's natural encoding.
+function addSpace(): MarkdownToken {
+  return { type: "space" as const, raw: "\n\n" };
+}
 
-    for (let i = 0; i < extraBreaks; i += 1) {
-      this.lineBreak(this.getStyle().lineDistance);
+// Marked greedily absorbs everything after a block HTML tag (e.g. <div>) into
+// a single html token, including unrelated plain-text lines that follow. Expand
+// each block html token into one token per line, preserving blank lines as space
+// tokens.
+export function expandBlockHtmlTokens(tokens: MarkdownToken[]): void {
+  for (let i = tokens.length - 1; i >= 0; i -= 1) {
+    if (!isBlockHtml(tokens[i])) continue;
+
+    const replacement: MarkdownToken[] = [];
+    // Marked's block HTML raw always ends with the "\n\n" blank-line delimiter it
+    // consumed. Strip one trailing "\n" so split("\n") produces one empty string
+    // per blank line instead of two, matching the spacing of inline tags like <em>.
+    for (const line of getLiteralTokenText(tokens[i]).replace(/\n$/, "").split("\n")) {
+      if (!line) {
+        replacement.push(addSpace());
+      } else {
+        replacement.push(toParagraph(line));
+      }
     }
+
+    // Replace the single block html token at index i with the expanded tokens.
+    tokens.splice(i, 1, ...replacement);
   }
 }

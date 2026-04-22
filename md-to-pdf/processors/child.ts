@@ -37,11 +37,6 @@ export function processChild(this: MarkdownToPdfContext, token: MarkdownToken): 
     case "hr":
       this.horizontalLine();
       break;
-    // Render raw HTML tokens as literal text so content is not silently lost.
-    case "html": {
-      this.writeHtml(token);
-      break;
-    }
     // image
     case "image":
       this.writeLink(token as MarkdownLinkToken);

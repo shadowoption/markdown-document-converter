@@ -11,7 +11,6 @@ describe("md-to-pdf child processor", () => {
       writeCheckBox: jest.fn(),
       writeCode: jest.fn(),
       writeCodeSpan: jest.fn(),
-      writeHtml: jest.fn(),
       horizontalLine: jest.fn(),
       writeLink: jest.fn(),
       writeList: jest.fn(),
@@ -79,15 +78,12 @@ describe("md-to-pdf child processor", () => {
     expect(context.writeText).toHaveBeenCalledWith("hello");
   });
 
-  it("should render html tokens as literal text", () => {
-    processChild.call(context, { type: "html", raw: "<div class=\"note\">x</div>" });
+  it("should write inline html token text via fallback", () => {
+    // Block html tokens are expanded to paragraphs before DFS; only inline html
+    // tokens (block: false) can reach processChild, and they fall through to the
+    // default text handler.
+    processChild.call(context, { type: "html", text: "<b>hello</b>", raw: "<b>hello</b>" });
 
-    expect(context.writeHtml).toHaveBeenCalledWith({ type: "html", raw: "<div class=\"note\">x</div>" });
-  });
-
-  it("should preserve blank line after block html with trailing newlines", () => {
-    processChild.call(context, { type: "html", block: true, raw: "<div>x</div>\n\n" });
-
-    expect(context.writeHtml).toHaveBeenCalledWith({ type: "html", block: true, raw: "<div>x</div>\n\n" });
+    expect(context.writeText).toHaveBeenCalledWith("<b>hello</b>");
   });
 });
