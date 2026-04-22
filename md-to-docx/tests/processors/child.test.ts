@@ -17,6 +17,7 @@ describe("child.js processors", () => {
       writeLink: jest.fn(),
       writeList: jest.fn(),
       processTable: jest.fn(),
+      getSpaceBreakCount: jest.fn(() => 1),
     };
   });
 
@@ -99,6 +100,17 @@ describe("child.js processors", () => {
       processChild.call(mockContext, token);
 
       expect(mockContext.lineBreak).toHaveBeenCalled();
+      expect(mockContext.getSpaceBreakCount).toHaveBeenCalledWith(token);
+    });
+
+    it("should handle space type with multiple newline breaks", () => {
+      mockContext.getSpaceBreakCount.mockReturnValue(3);
+      const token = { type: "space", raw: "\n\n\n" };
+
+      processChild.call(mockContext, token);
+
+      expect(mockContext.lineBreak).toHaveBeenCalledTimes(3);
+      expect(mockContext.getSpaceBreakCount).toHaveBeenCalledWith(token);
     });
 
     it("should handle table type", () => {

@@ -11,12 +11,14 @@ describe("md-to-pdf child processor", () => {
       writeCheckBox: jest.fn(),
       writeCode: jest.fn(),
       writeCodeSpan: jest.fn(),
+      writeHtml: jest.fn(),
       horizontalLine: jest.fn(),
       writeLink: jest.fn(),
       writeList: jest.fn(),
       processTable: jest.fn(),
       writeText: jest.fn(),
       getStyle: jest.fn(() => ({ lineDistance: 10 })),
+      getSpaceBreakCount: jest.fn(() => 1),
     };
   });
 
@@ -33,6 +35,18 @@ describe("md-to-pdf child processor", () => {
 
     expect(context.lineBreak).toHaveBeenCalledTimes(2);
     expect(context.lineBreak).toHaveBeenCalledWith(10);
+    expect(context.getSpaceBreakCount).toHaveBeenCalledWith({ type: "space" });
+  });
+
+  it("should break multiple lines for space based on newline count", () => {
+    context.getSpaceBreakCount.mockReturnValue(3);
+
+    processChild.call(context, { type: "space", raw: "\n\n\n" });
+
+    expect(context.lineBreak).toHaveBeenCalledTimes(3);
+    expect(context.lineBreak).toHaveBeenNthCalledWith(1, 10);
+    expect(context.lineBreak).toHaveBeenNthCalledWith(2, 10);
+    expect(context.lineBreak).toHaveBeenNthCalledWith(3, 10);
   });
 
   it("should route to dedicated handlers", () => {
@@ -68,6 +82,12 @@ describe("md-to-pdf child processor", () => {
   it("should render html tokens as literal text", () => {
     processChild.call(context, { type: "html", raw: "<div class=\"note\">x</div>" });
 
-    expect(context.writeText).toHaveBeenCalledWith("<div class=\"note\">x</div>");
+    expect(context.writeHtml).toHaveBeenCalledWith({ type: "html", raw: "<div class=\"note\">x</div>" });
+  });
+
+  it("should preserve blank line after block html with trailing newlines", () => {
+    processChild.call(context, { type: "html", block: true, raw: "<div>x</div>\n\n" });
+
+    expect(context.writeHtml).toHaveBeenCalledWith({ type: "html", block: true, raw: "<div>x</div>\n\n" });
   });
 });

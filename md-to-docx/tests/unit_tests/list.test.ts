@@ -159,15 +159,15 @@ describe("list.js helpers", () => {
       expect(token.items[0].prefix).toBe("5. ");
     });
 
-    it("should default ordered list numbering to 1 when start is empty", () => {
+    it("should preserve ordered list numbering when start is zero", () => {
       const token = {
         ordered: true,
-        start: "",
+        start: 0,
         items: [{ type: "list_item", tokens: [] }],
       };
       writeList.call(mockContext, token);
 
-      expect(token.items[0].prefix).toBe("1. ");
+      expect(token.items[0].prefix).toBe("0. ");
     });
 
     it("should handle empty items array", () => {

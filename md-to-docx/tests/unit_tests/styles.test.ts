@@ -5,6 +5,7 @@ const {
   popStyle,
   updateStyle,
   setTextStyle,
+  getSpaceBreakCount,
 } = require("../../helpers/styles");
 const docx = require("docx");
 
@@ -375,6 +376,21 @@ describe("styles.js helpers", () => {
       expect(() => {
         setTextStyle.call(mockContext, undefined);
       }).not.toThrow();
+    });
+  });
+
+  describe("getSpaceBreakCount", () => {
+    it("should return 1 for non-space tokens", () => {
+      expect(getSpaceBreakCount.call(mockContext, { type: "text", raw: "\n\n\n" })).toBe(1);
+    });
+
+    it("should convert raw newline count into blank-line count", () => {
+      expect(getSpaceBreakCount.call(mockContext, { type: "space", raw: "\n\n" })).toBe(1);
+      expect(getSpaceBreakCount.call(mockContext, { type: "space", raw: "\n\n\n" })).toBe(2);
+    });
+
+    it("should default to 1 when raw is missing", () => {
+      expect(getSpaceBreakCount.call(mockContext, { type: "space" })).toBe(1);
     });
   });
 });

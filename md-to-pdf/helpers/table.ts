@@ -34,7 +34,10 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
     }));
   });
 
-  this.lineBreak(style.lineDistance);
+  // If we're currently mid-line, move to the next line before starting the table.
+  if (style.cursorIndex > style.currentWidth) {
+    this.lineBreak(style.lineDistance);
+  }
   const nextStyle = { ...this.getStyle() };
 
   // create the table with the generated rows
@@ -43,7 +46,7 @@ export function processTable(this: MarkdownToPdfContext, token: MarkdownTableTok
     body: tableData,
     startY: nextStyle.currentHeight,
     tableWidth: nextStyle.maxLineWidth - nextStyle.currentWidth,
-    pageBreak: "avoid",
+    pageBreak: "auto",
     margin: {
       left: nextStyle.currentWidth,
     },

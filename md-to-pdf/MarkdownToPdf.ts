@@ -4,6 +4,7 @@ import {
   popStyle,
   updateStyle,
   setTextStyle,
+  getSpaceBreakCount,
   setDocStyle,
 } from "./helpers/styles";
 import { horizontalLine, lineBreak } from "./helpers/lines";
@@ -12,6 +13,7 @@ import { processTable } from "./helpers/table";
 import { writeCheckBox, writeList, writeListItem } from "./helpers/list";
 import { writeCode, writeCodeSpan } from "./helpers/code";
 import { writeBlockquote } from "./helpers/blockquote";
+import { writeHtml } from "./helpers/html";
 import { writeHeading } from "./helpers/heading";
 import { writeLink } from "./helpers/link";
 import { writeParagraph } from "./helpers/paragraph";
@@ -69,6 +71,7 @@ export class MarkdownToPdf {
   public popStyle: () => void;
   public updateStyle: (partial?: Partial<PdfStyle>) => void;
   public setTextStyle: (type: string) => void;
+  public getSpaceBreakCount: (token: MarkdownToken) => number;
   public lineBreak: (distance: number) => void;
   public horizontalLine: () => void;
   public writePrefix: (token: MarkdownListItemToken | MarkdownCheckboxToken) => PdfStyle;
@@ -80,6 +83,7 @@ export class MarkdownToPdf {
   public writeListItem: (token: MarkdownListItemToken) => void;
   public writeCode: (token: MarkdownCodeToken) => void;
   public writeCodeSpan: (token: MarkdownCodeSpanToken) => void;
+  public writeHtml: (token: MarkdownToken) => void;
   public writeBlockquote: (token: MarkdownBlockquoteToken) => void;
   public writeHeading: (token: MarkdownHeadingToken) => void;
   public writeParagraph: (token: MarkdownParagraphToken) => void;
@@ -103,6 +107,7 @@ export class MarkdownToPdf {
     this.popStyle = popStyle.bind(this);
     this.updateStyle = updateStyle.bind(this);
     this.setTextStyle = setTextStyle.bind(this);
+    this.getSpaceBreakCount = getSpaceBreakCount.bind(this);
     this.lineBreak = lineBreak.bind(this);
     this.horizontalLine = horizontalLine.bind(this);
     this.writePrefix = writePrefix.bind(this);
@@ -113,6 +118,7 @@ export class MarkdownToPdf {
     this.writeListItem = writeListItem.bind(this);
     this.writeCode = writeCode.bind(this);
     this.writeCodeSpan = writeCodeSpan.bind(this);
+    this.writeHtml = writeHtml.bind(this);
     this.writeBlockquote = writeBlockquote.bind(this);
     this.writeHeading = writeHeading.bind(this);
     this.writeLink = writeLink.bind(this);

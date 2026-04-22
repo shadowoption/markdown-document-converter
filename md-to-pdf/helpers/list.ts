@@ -11,14 +11,6 @@ export function writeCheckBox(this: MarkdownToPdfContext, token: MarkdownCheckbo
 }
 
 export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken): void {
-  const initialStyle = this.getStyle();
-
-  // Nested lists can appear after inline text inside a list item; force the
-  // nested list to start on a fresh line so prefixes do not collide with text.
-  if (initialStyle.cursorIndex > initialStyle.currentWidth) {
-    this.lineBreak(initialStyle.lineDistance);
-  }
-
   const startStyle = this.getStyle();
 
   // add bullet point prefix area and increase indent level
@@ -28,10 +20,10 @@ export function writeList(this: MarkdownToPdfContext, token: MarkdownListToken):
   });
 
   const items = token.items || [];
-  const start = Number(token.start) || 1;
+  const start = token.start != null ? Number(token.start) : 1;
 
   for (let index = 0; index < items.length; index += 1) {
-    const item = items[index] as MarkdownListItemToken;
+    const item = items[index];
     // if ordered, replace bullet point with current index for numbering
     if (token.ordered) {
       item.prefix = `${start + index}. `;
@@ -47,8 +39,11 @@ export function writeListItem(this: MarkdownToPdfContext, token: MarkdownListIte
   this.lineBreak(token.loose ? style.lineSpc : style.lineDistance);
 
   this.writePrefix(token);
-  // The first paragraph in an item should continue after the prefix, not add
-  // another paragraph break before content.
-  this.updateStyle({ skipParagraphBreak: true });
-  this.DFS(token.tokens || []);
+  const itemTokens = token.tokens || [];
+
+  // Only suppress the paragraph break when the list item actually starts with
+  // a paragraph token. Non-paragraph item starts (for example plain text or a
+  // nested list) should not leak skipParagraphBreak into following blocks.
+  this.updateStyle({ skipParagraphBreak: itemTokens[0]?.type === "paragraph" });
+  this.DFS(itemTokens);
 }

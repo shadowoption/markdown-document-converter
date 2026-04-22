@@ -38,6 +38,7 @@ describe("text.js helpers", () => {
       this.italics = options?.italics;
       this.strike = options?.strike;
       this.style = options?.style;
+      this.break = options?.break;
     });
   });
 
@@ -153,7 +154,14 @@ describe("text.js helpers", () => {
     it("should handle multiline text", () => {
       writeText.call(mockContext, "Line 1\nLine 2\nLine 3");
 
-      expect(mockContext.getCurrentTextRuns()[0].text).toBe("Line 1\nLine 2\nLine 3");
+      const runs = mockContext.getCurrentTextRuns();
+
+      expect(runs.length).toBe(5);
+      expect(runs[0].text).toBe("Line 1");
+      expect(runs[1].break).toBe(1);
+      expect(runs[2].text).toBe("Line 2");
+      expect(runs[3].break).toBe(1);
+      expect(runs[4].text).toBe("Line 3");
     });
 
     it("should add multiple TextRuns to current", () => {
