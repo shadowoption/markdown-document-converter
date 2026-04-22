@@ -11,6 +11,7 @@ export function writeCode(this: MarkdownToDocxContext, token: MarkdownCodeToken)
   }
 
   this.groupParagraph();
+  this.lineBreak();
 }
 
 export function writeCodeSpan(this: MarkdownToDocxContext, token: MarkdownCodeSpanToken): void {

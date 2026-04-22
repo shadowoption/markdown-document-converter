@@ -95,4 +95,97 @@ describe("integration: markdown to pdf", () => {
     expect(doc.rect.mock.calls[1][1]).toBeLessThan(70);
     expect(doc.rect.mock.calls[1][3]).toBeLessThan(50);
   });
+
+  it("should place paragraph text on a new line after block html following a list", () => {
+    marked.lexer.mockImplementationOnce(() => [
+      {
+        type: "list",
+        ordered: false,
+        loose: false,
+        items: [
+          {
+            type: "list_item",
+            loose: false,
+            task: false,
+            tokens: [
+              {
+                type: "text",
+                tokens: [{ type: "text", text: "Item" }],
+              },
+            ],
+          },
+        ],
+      },
+      { type: "space" },
+      { type: "html", block: true, raw: "<div> This is a div </div>\n\n" },
+      { type: "paragraph", tokens: [{ type: "text", text: "This is text" }] },
+    ]);
+
+    const api = createMdToPdf();
+    const doc = createMockDoc();
+
+    api.convert(doc, "fixture", {
+      currentHeight: 70,
+      currentWidth: 60,
+      lineDistance: 10,
+      lineSpc: 18,
+    });
+
+    const htmlCall = doc.text.mock.calls.find((call) => String(call[0]).includes("</div>"));
+    const paragraphCall = doc.text.mock.calls.find((call) => String(call[0]) === "This is text");
+
+    expect(htmlCall).toBeDefined();
+    expect(paragraphCall).toBeDefined();
+    expect(paragraphCall[2] - htmlCall[2]).toBe(20);
+  });
+
+  it("should not insert an extra blank line before nested list items", () => {
+    marked.lexer.mockImplementationOnce(() => [
+      {
+        type: "list",
+        ordered: false,
+        loose: false,
+        items: [
+          {
+            type: "list_item",
+            loose: false,
+            task: false,
+            tokens: [
+              { type: "text", text: "Parent" },
+              {
+                type: "list",
+                ordered: false,
+                loose: false,
+                items: [
+                  {
+                    type: "list_item",
+                    loose: false,
+                    task: false,
+                    tokens: [{ type: "text", text: "Child" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+
+    const api = createMdToPdf();
+    const doc = createMockDoc();
+
+    api.convert(doc, "fixture", {
+      currentHeight: 70,
+      currentWidth: 60,
+      lineDistance: 10,
+      lineSpc: 18,
+    });
+
+    const parentCall = doc.text.mock.calls.find((call) => String(call[0]) === "Parent");
+    const childCall = doc.text.mock.calls.find((call) => String(call[0]) === "Child");
+
+    expect(parentCall).toBeDefined();
+    expect(childCall).toBeDefined();
+    expect(childCall[2] - parentCall[2]).toBe(10);
+  });
 });

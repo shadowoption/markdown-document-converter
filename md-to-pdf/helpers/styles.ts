@@ -1,8 +1,8 @@
 import jspdfFonts = require("../jspdfFonts");
 
-import type { JsPdfDoc, MarkdownToPdfContext, PdfStyle } from "../types";
+import type { JsPdfDoc, MarkdownToPdfContext, MarkdownToken, PdfStyle } from "../types";
 
-const _DEFAULT_STYLE: PdfStyle = {
+const DEFAULT_STYLE: PdfStyle = {
   font: "helvetica",
   monospaceFont: "courier",
   lineDistance: 10,
@@ -29,7 +29,7 @@ const _DEFAULT_STYLE: PdfStyle = {
 };
 
 export function getDefaultStyle(): PdfStyle {
-  return { ..._DEFAULT_STYLE };
+  return { ...DEFAULT_STYLE };
 }
 
 export function pushStyle(this: MarkdownToPdfContext): void {
@@ -82,6 +82,20 @@ export function setTextStyle(this: MarkdownToPdfContext, type: string): void {
   }
 }
 
+export function getSpaceBreakCount(this: MarkdownToPdfContext, token: MarkdownToken): number {
+  if (token.type !== "space") {
+    return 1;
+  }
+
+  // Marked encodes a single blank line between blocks as raw "\n\n". The
+  // following block renderer already adds its own leading break, so convert raw
+  // newline count into blank-line count to avoid double-spacing.
+  const raw = "raw" in token && typeof token.raw === "string" ? token.raw : "";
+  const newlineCount = (raw.match(/\n/g) || []).length;
+
+  return Math.max(1, newlineCount - 1);
+}
+
 export function checkHeight(doc: JsPdfDoc, style: PdfStyle): number {
   if (style.currentHeight + style.lineSpc > style.pageHeight) {
     doc.addPage();
@@ -94,11 +108,6 @@ export function checkHeight(doc: JsPdfDoc, style: PdfStyle): number {
 export function setDocStyle(doc: JsPdfDoc, text: string, style: PdfStyle): void {
   const font = jspdfFonts.chooseFontForText(text, style.code ? style.monospaceFont : style.font);
 
-  doc.setFont(font);
-  doc.setFontSize(style.fontSize);
-  doc.setTextColor(style.textColor);
-  doc.setDrawColor(style.drawColor);
-
   // jsPDF uses style variants per font family, so map boolean flags to variant.
   if (style.bold && style.italics) {
     doc.setFont(font, "bolditalic");
@@ -109,4 +118,7 @@ export function setDocStyle(doc: JsPdfDoc, text: string, style: PdfStyle): void 
   } else {
     doc.setFont(font, "normal");
   }
+  doc.setFontSize(style.fontSize);
+  doc.setTextColor(style.textColor);
+  doc.setDrawColor(style.drawColor);
 }

@@ -21,8 +21,8 @@ export function writeList(this: MarkdownToDocxContext, token: MarkdownListToken)
     ordered: Boolean(token.ordered),
   });
 
-  const items = (token.items || []) as MarkdownListItemToken[];
-  const start = Number(token.start) || 1;
+  const items = token.items || [];
+  const start = token.start != null ? Number(token.start) : 1;
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];

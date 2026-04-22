@@ -10,6 +10,7 @@ const {
   popStyle,
   updateStyle,
   setTextStyle,
+  getSpaceBreakCount,
   checkHeight,
   setDocStyle,
 } = require("../../helpers/styles");
@@ -167,7 +168,6 @@ describe("md-to-pdf style helpers", () => {
     setDocStyle(doc, "hello", style);
 
     expect(jspdfFonts.chooseFontForText).toHaveBeenCalledWith("hello", "Times");
-    expect(doc.setFont).toHaveBeenCalledWith("mock-font");
     expect(doc.setFontSize).toHaveBeenCalledWith(12);
     expect(doc.setTextColor).toHaveBeenCalledWith(style.textColor);
     expect(doc.setDrawColor).toHaveBeenCalledWith(style.drawColor);
@@ -181,7 +181,6 @@ describe("md-to-pdf style helpers", () => {
     setDocStyle(doc, "hello", style);
 
     expect(jspdfFonts.chooseFontForText).toHaveBeenCalledWith("hello", null);
-    expect(doc.setFont).toHaveBeenCalledWith("mock-font");
     expect(doc.setFont).toHaveBeenCalledWith("mock-font", "normal");
   });
 
@@ -193,5 +192,18 @@ describe("md-to-pdf style helpers", () => {
 
     expect(doc.setFont).toHaveBeenCalledWith("mock-font", "bold");
     expect(doc.setFont).toHaveBeenCalledWith("mock-font", "normal");
+  });
+
+  it("getSpaceBreakCount should return 1 for non-space tokens", () => {
+    expect(getSpaceBreakCount.call({}, { type: "text", raw: "\n\n\n" })).toBe(1);
+  });
+
+  it("getSpaceBreakCount should convert raw newline count into blank-line count", () => {
+    expect(getSpaceBreakCount.call({}, { type: "space", raw: "\n\n" })).toBe(1);
+    expect(getSpaceBreakCount.call({}, { type: "space", raw: "\n\n\n" })).toBe(2);
+  });
+
+  it("getSpaceBreakCount should default to 1 when raw is missing", () => {
+    expect(getSpaceBreakCount.call({}, { type: "space" })).toBe(1);
   });
 });

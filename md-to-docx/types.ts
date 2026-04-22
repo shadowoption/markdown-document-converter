@@ -12,8 +12,10 @@ export type MarkdownHeadingToken = Tokens.Heading;
 export type MarkdownBlockquoteToken = Tokens.Blockquote;
 export type MarkdownLinkToken = Tokens.Link | Tokens.Image;
 export type MarkdownCheckboxToken = Tokens.Checkbox | Tokens.ListItem;
-export type MarkdownListToken = Tokens.List;
+// Extend ListItem with a prefix for our purposes
 export type MarkdownListItemToken = Tokens.ListItem & { prefix?: string };
+// Since we extend ListItem, we need to redefine List to use our extended ListItem
+export type MarkdownListToken = Omit<Tokens.List, "items"> & { items: MarkdownListItemToken[] };
 export type MarkdownCodeSpanToken = Tokens.Codespan;
 export type MarkdownCodeToken = Tokens.Code & { lines?: string[] };
 export type MarkdownTableToken = Tokens.Table;
@@ -47,6 +49,7 @@ export interface MarkdownToDocxContext {
   popStyle: () => void;
   updateStyle: (partial?: Partial<MarkdownStyle>) => void;
   setTextStyle: (type: string) => void;
+  getSpaceBreakCount: (token: MarkdownToken) => number;
   writeText: (text: string) => void;
   lineBreak: () => void;
   groupParagraph: () => void;

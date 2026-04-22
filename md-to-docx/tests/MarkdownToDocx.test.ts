@@ -58,6 +58,7 @@ describe("MarkdownToDocx class", () => {
       expect(typeof doc.popStyle).toBe("function");
       expect(typeof doc.updateStyle).toBe("function");
       expect(typeof doc.setTextStyle).toBe("function");
+      expect(typeof doc.getSpaceBreakCount).toBe("function");
       expect(typeof doc.writeText).toBe("function");
       expect(typeof doc.lineBreak).toBe("function");
       expect(typeof doc.groupParagraph).toBe("function");
