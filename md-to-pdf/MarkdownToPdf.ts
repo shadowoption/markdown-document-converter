@@ -42,7 +42,14 @@ import type {
   PdfStyle,
 } from "./types";
 
+// Matches non-printing control/format characters that are known to create
+// malformed token streams or bad glyph output in PDF rendering.
+const INVISIBLE_FORMAT_AND_CONTROL_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\uFFFD\p{Cf}\p{Cs}\u034F]/gu;
+
 function normalizeMarkdownInput(text: string): string {
+  // Decode entities once here (before lexing) so both parsing and rendering
+  // operate on the same normalized text. We intentionally do not decode again
+  // per token in walkTokens.
   return he.decode(String(text || ""))
     // Normalize line endings first.
     .replace(/\r\n?/g, "\n")
@@ -58,8 +65,10 @@ function normalizeMarkdownInput(text: string): string {
     .replace(/[\u2192\u21D2]/g, "->")
     .replace(/[\u2193\u21D3]/g, "v")
     .replace(/[\u2194\u21D4]/g, "<->")
-    // Drop invisible/control characters that commonly corrupt markdown parsing.
-    .replace(/[\u0000\u200B\u2060\uFEFF]/g, "");
+    // Drop invisible Unicode format chars and control chars that commonly
+    // survive HTML decoding and then corrupt markdown parsing or PDF layout.
+    // Preserve tabs/newlines because markdown uses them structurally.
+    .replace(INVISIBLE_FORMAT_AND_CONTROL_RE, "");
 }
 
 export class MarkdownToPdf {
@@ -229,6 +238,8 @@ export class MarkdownToPdf {
       },
     ]
       */
+    // normalizeMarkdownInput performs entity decoding and aggressive cleanup
+    // before marked.lexer so all downstream tokenization sees stable input.
     const normalizedText = normalizeMarkdownInput(text);
 
     // set the active document and reset traversal style stack
@@ -245,11 +256,9 @@ export class MarkdownToPdf {
     // structure is preserved in the PDF layout.
     expandBlockHtmlTokens(tokens);
 
-    // decode HTML text and split code lines
+    // Keep walkTokens focused on structural code-line splitting only.
+    // Text token decode/sanitize is intentionally handled pre-lexer.
     marked.walkTokens(tokens, (token: MarkdownToken) => {
-      if ("text" in token && typeof token.text === "string") {
-        token.text = he.decode(token.text);
-      }
       if (token.type === "code" && "text" in token && typeof token.text === "string") {
         (token as MarkdownCodeToken).lines = token.text.split("\n");
       }

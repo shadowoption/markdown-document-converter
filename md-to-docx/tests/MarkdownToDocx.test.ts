@@ -192,12 +192,12 @@ describe("MarkdownToDocx class", () => {
       expect(marked.walkTokens).toHaveBeenCalled();
     });
 
-    it("should decode HTML entities in token text", () => {
+    it("should decode HTML entities in input before lexing", () => {
       const doc = new MarkdownToDocx();
       const tokens = [{ text: "&lt;test&gt;" }];
       marked.lexer.mockReturnValue(tokens);
 
-      doc.convert("test");
+      doc.convert("&lt;test&gt;");
 
       expect(he.decode).toHaveBeenCalledWith("&lt;test&gt;");
     });
@@ -360,7 +360,7 @@ describe("MarkdownToDocx class", () => {
       expect(Array.isArray(result2)).toBe(true);
     });
 
-    it("should call he.decode for all text tokens", () => {
+    it("should call he.decode for source input once", () => {
       const doc = new MarkdownToDocx();
       const tokens = [
         { text: "hello", type: "text" },
@@ -368,10 +368,10 @@ describe("MarkdownToDocx class", () => {
       ];
       marked.lexer.mockReturnValue(tokens);
 
-      doc.convert("test");
+      doc.convert("hello &amp; world");
 
-      expect(he.decode).toHaveBeenCalledWith("hello");
-      expect(he.decode).toHaveBeenCalledWith("world");
+      expect(he.decode).toHaveBeenCalledTimes(1);
+      expect(he.decode).toHaveBeenCalledWith("hello &amp; world");
     });
 
     it("should process all token types via walkTokens", () => {
