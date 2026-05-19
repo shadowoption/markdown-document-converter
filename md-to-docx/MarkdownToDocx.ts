@@ -42,7 +42,13 @@ import type {
   MarkdownTokensList,
 } from "./types";
 
+// Matches non-printing control/format characters that can destabilize
+// markdown tokenization or produce noisy output in generated documents.
+const INVISIBLE_FORMAT_AND_CONTROL_RE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\uFFFD\p{Cf}\p{Cs}\u034F]/gu;
+
 function normalizeMarkdownInput(text: string): string {
+  // Decode entities once here (before lexing) so parsing and output are based
+  // on one canonical input string. We intentionally avoid per-token decode.
   return he.decode(String(text || ""))
     // Normalize line endings first.
     .replace(/\r\n?/g, "\n")
@@ -59,7 +65,7 @@ function normalizeMarkdownInput(text: string): string {
     .replace(/[\u2193\u21D3]/g, "v")
     .replace(/[\u2194\u21D4]/g, "<->")
     // Drop invisible/control characters that commonly corrupt markdown parsing.
-    .replace(/[\u0000\u200B\u2060\uFEFF]/g, "");
+    .replace(INVISIBLE_FORMAT_AND_CONTROL_RE, "");
 }
 
 export class MarkdownToDocx {
@@ -247,14 +253,14 @@ export class MarkdownToDocx {
       },
     ]
       */
+    // normalizeMarkdownInput handles entity decoding and aggressive cleanup
+    // before marked.lexer, which keeps token content deterministic.
     const normalizedText = normalizeMarkdownInput(text);
     const tokens: MarkdownTokensList = marked.lexer(normalizedText, { gfm: true, breaks: true });
 
-    // decode HTML text and split code lines
+    // walkTokens is now only used for code-line preparation.
+    // Text token decode/sanitize is intentionally pre-lexer.
     marked.walkTokens(tokens, (token: MarkdownToken) => {
-      if ("text" in token && typeof token.text === "string") {
-        token.text = he.decode(token.text);
-      }
       if (token.type === "code" && "text" in token && typeof token.text === "string") {
         (token as MarkdownCodeToken).lines = token.text.split("\n");
       }

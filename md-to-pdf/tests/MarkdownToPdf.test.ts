@@ -73,6 +73,21 @@ describe("MarkdownToPdf class", () => {
     expect(marked.lexer).toHaveBeenCalledWith("A B C-DE\nF\nG", { gfm: true, breaks: true });
   });
 
+  it("should strip decoded HTML format and bidi control characters before parsing", () => {
+    const realHe = jest.requireActual("he");
+    he.decode.mockImplementation(realHe.decode);
+
+    const pdf = new MarkdownToPdf();
+    const doc = createMockDoc();
+
+    pdf.convert(
+      doc,
+      "A&zwj;B&zwnj;C&lrm;D&rlm;E&#x2066;F&#x2069;G&#x034F;H&#x0007;I&#xFEFF;J&#xD800;K"
+    );
+
+    expect(marked.lexer).toHaveBeenCalledWith("ABCDEFGHIJK", { gfm: true, breaks: true });
+  });
+
   it("should normalize arrow entities to ASCII fallbacks before parsing", () => {
     const realHe = jest.requireActual("he");
     he.decode.mockImplementation(realHe.decode);
@@ -100,7 +115,7 @@ describe("MarkdownToPdf class", () => {
     expect(normalizedInput).not.toMatch(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/);
   });
 
-  it("should decode token text and split code lines", () => {
+  it("should decode input text and split code lines", () => {
     const tokens = [
       { type: "text", text: "&lt;value&gt;" },
       { type: "code", text: "a\nb" },
@@ -112,7 +127,7 @@ describe("MarkdownToPdf class", () => {
 
     pdf.convert(doc, "markdown");
 
-    expect(he.decode).toHaveBeenCalledWith("&lt;value&gt;");
+    expect(he.decode).toHaveBeenCalledWith("markdown");
     expect(tokens[1].lines).toEqual(["a", "b"]);
   });
 

@@ -26,6 +26,16 @@ describe("md-to-pdf style helpers", () => {
     expect(typeof actualJspdfFonts.chooseFontForText).toBe("function");
   });
 
+  it("chooseFontForText should route symbol-heavy text to NotoSerif", () => {
+    expect(actualJspdfFonts.chooseFontForText("Decimal: A ☃", "helvetica")).toBe("NotoSerif");
+    expect(actualJspdfFonts.chooseFontForText("Text and emoji variation selector pairs: ✈︎ ✈️ ♥︎ ❤️", "helvetica")).toBe("NotoSerif");
+  });
+
+  it("chooseFontForText should route combining-mark text to NotoSerif", () => {
+    expect(actualJspdfFonts.chooseFontForText("Simple combining marks: á ê ï ō ů ñ", "helvetica")).toBe("NotoSerif");
+    expect(actualJspdfFonts.chooseFontForText("Repeated combining marks: Z̴̷̸͓͔͕a̵̶̷͙͚l̴̵͍g̵͔o̶͍", "helvetica")).toBe("NotoSerif");
+  });
+
   it("should return default style", () => {
     const style = getDefaultStyle();
 
